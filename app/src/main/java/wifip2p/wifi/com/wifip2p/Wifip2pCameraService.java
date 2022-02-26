@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import wifip2p.wifi.com.wifip2p.socket.CameraReceiveSocket;
 import wifip2p.wifi.com.wifip2p.socket.ReceiveSocket;
 
 /**
@@ -14,12 +15,12 @@ import wifip2p.wifi.com.wifip2p.socket.ReceiveSocket;
  * description: 服务端,用来监听发送过来的文件信息
  */
 
-public class Wifip2pService extends IntentService {
+public class Wifip2pCameraService extends IntentService {
 
     private static final String TAG = "Wifip2pService";
-    private ReceiveSocket mReceiveSocket;
+    private CameraReceiveSocket mReceiveSocket;
 
-    public Wifip2pService() {
+    public Wifip2pCameraService() {
         super("Wifip2pService");
     }
 
@@ -34,10 +35,6 @@ public class Wifip2pService extends IntentService {
         public MyBinder() {
             super();
         }
-
-        public void initListener(ReceiveSocket.ProgressReceiveListener listener){
-            mReceiveSocket.setOnProgressReceiveListener(listener);
-        }
     }
 
     @Override
@@ -48,7 +45,7 @@ public class Wifip2pService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        mReceiveSocket = new ReceiveSocket();
+        mReceiveSocket = new CameraReceiveSocket();
         mReceiveSocket.createServerSocket(this);
         Log.e(TAG, "传输完毕");
     }

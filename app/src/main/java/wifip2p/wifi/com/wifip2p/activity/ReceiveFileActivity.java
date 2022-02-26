@@ -32,11 +32,12 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     private ProgressDialog mProgressDialog;
     private Intent mIntent;
 
+    // 创建一个服务连接，与写好的WifiService进行连接
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            //调用服务里面的方法进行绑定
+            //调用服务里面的方法进行绑定,binder中含有ReceiveSocket
             mBinder = (Wifip2pService.MyBinder) service;
             mBinder.initListener(ReceiveFileActivity.this);
         }
@@ -58,8 +59,11 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
         btnCreate.setOnClickListener(this);
         btnRemove.setOnClickListener(this);
 
+        // 创建一个Intent，将该Activity与Service进行连接
         mIntent = new Intent(ReceiveFileActivity.this, Wifip2pService.class);
+        // 开启服务
         startService(mIntent);
+        // 绑定服务
         bindService(mIntent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 

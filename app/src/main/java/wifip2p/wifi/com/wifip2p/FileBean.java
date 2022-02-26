@@ -18,6 +18,9 @@ public class FileBean implements Serializable{
     //MD5码：保证文件的完整性
     public String md5;
 
+    public FileBean() {
+    }
+
     public FileBean(String filePath, long fileLength, String md5) {
         this.filePath = filePath;
         this.fileLength = fileLength;

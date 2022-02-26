@@ -7,8 +7,10 @@ import android.widget.Toast;
 
 import java.io.File;
 
+import wifip2p.wifi.com.wifip2p.Constant;
 import wifip2p.wifi.com.wifip2p.FileBean;
 import wifip2p.wifi.com.wifip2p.ProgressDialog;
+import wifip2p.wifi.com.wifip2p.TransBean;
 import wifip2p.wifi.com.wifip2p.socket.SendSocket;
 
 /**
@@ -29,6 +31,7 @@ public class SendTask extends AsyncTask<String, Integer, Void> implements SendSo
     public SendTask(Context ctx, FileBean fileBean) {
         mFileBean = fileBean;
         mContext = ctx;
+
     }
 
     @Override
@@ -40,7 +43,8 @@ public class SendTask extends AsyncTask<String, Integer, Void> implements SendSo
 
     @Override
     protected Void doInBackground(String... strings) {
-        mSendSocket = new SendSocket(mFileBean, strings[0], this);
+        TransBean transBean = new TransBean(Constant.FILE,"",mFileBean);
+        mSendSocket = new SendSocket(transBean, strings[0], this);
         mSendSocket.createSendSocket();
         return null;
     }
@@ -50,7 +54,7 @@ public class SendTask extends AsyncTask<String, Integer, Void> implements SendSo
     public void onProgressChanged(File file, int progress) {
         Log.e(TAG, "发送进度：" + progress);
         mProgressDialog.setProgress(progress);
-        mProgressDialog.setProgressText(progress + "%");;
+        mProgressDialog.setProgressText(progress + "%");
     }
 
     @Override
@@ -63,7 +67,7 @@ public class SendTask extends AsyncTask<String, Integer, Void> implements SendSo
     @Override
     public void onFaliure(File file) {
         Log.e(TAG, "发送失败");
-        if (mProgressDialog!=null){
+        if (mProgressDialog != null) {
             mProgressDialog.dismiss();
         }
         Toast.makeText(mContext, "发送失败，请重试！", Toast.LENGTH_SHORT).show();

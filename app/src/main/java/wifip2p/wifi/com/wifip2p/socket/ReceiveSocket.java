@@ -1,20 +1,30 @@
 package wifip2p.wifi.com.wifip2p.socket;
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.util.Pair;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.ContentHandler;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import wifip2p.wifi.com.wifip2p.Constant;
 import wifip2p.wifi.com.wifip2p.FileBean;
+import wifip2p.wifi.com.wifip2p.R;
+import wifip2p.wifi.com.wifip2p.TransBean;
 import wifip2p.wifi.com.wifip2p.utils.FileUtils;
 import wifip2p.wifi.com.wifip2p.utils.Md5Util;
 
@@ -23,7 +33,7 @@ import wifip2p.wifi.com.wifip2p.utils.Md5Util;
  * description:服务端监听的socket
  */
 
-public class ReceiveSocket {
+public class ReceiveSocket extends Activity {
 
     public static final String TAG = "ReceiveSocket";
     public static final int PORT = 10000;
@@ -33,6 +43,7 @@ public class ReceiveSocket {
     private ObjectInputStream mObjectInputStream;
     private FileOutputStream mFileOutputStream;
     private File mFile;
+    private Context context;
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
 
@@ -65,23 +76,64 @@ public class ReceiveSocket {
         }
     };
 
-    public void createServerSocket() {
+
+
+    public void createServerSocket(Context context) {
 
         try {
+            //创建socket对象
             mServerSocket = new ServerSocket();
             mServerSocket.setReuseAddress(true);
+            //绑定端口
             mServerSocket.bind(new InetSocketAddress(PORT));
+            //开始接收
             mSocket = mServerSocket.accept();
             Log.e(TAG, "客户端IP地址 : " + mSocket.getRemoteSocketAddress());
+            //获得流对象
             mInputStream = mSocket.getInputStream();
+            //根据传入的流创建对象输入流
             mObjectInputStream = new ObjectInputStream(mInputStream);
-            FileBean fileBean = (FileBean) mObjectInputStream.readObject();
-            String name = new File(fileBean.filePath).getName();
-            Log.e(TAG, "客户端传递的文件名称 : " + name);
-            Log.e(TAG, "客户端传递的MD5 : " + fileBean.md5);
+            //获得对应的TransBean
+            TransBean transBean = (TransBean) mObjectInputStream.readObject();
+
+            if (transBean.type.equals(Constant.FILE)) {
+                receiveFile((FileBean) transBean.fileBean);
+            }else if(transBean.type.equals(Constant.TEXT)){
+                Toast.makeText(context,transBean.text,Toast.LENGTH_LONG).show();
+            }
+
+        } catch (Exception e) {
+            mHandler.sendEmptyMessage(70);
+            Log.e(TAG, "文件接收异常");
+        }
+    }
+
+    private void readVideo() {
+        try{
+            byte bytes[] = new byte[1024];
+            int len;
+            long total = 0;
+            int progress;
+            while ((len = mInputStream.read(bytes)) != -1) {
+                mFileOutputStream.write(bytes, 0, len);
+                total += len;
+            }
+            ImageView viewById = (ImageView) findViewById(R.id.camera_video);
+            viewById.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+        }catch (Exception e){
+            Log.e(TAG,"出现异常");
+        }
+    }
+
+    private void receiveFile(FileBean fileBean) {
+        String name = new File(fileBean.filePath).getName();
+        Log.e(TAG, "客户端传递的文件名称 : " + name);
+        Log.e(TAG, "客户端传递的MD5 : " + fileBean.md5);
+        try {
             mFile = new File(FileUtils.SdCardPath(name));
+            //获得文件输出流
             mFileOutputStream = new FileOutputStream(mFile);
-            //开始接收文件
+            //开始接收文件,向Handler对象传递值
             mHandler.sendEmptyMessage(40);
             byte bytes[] = new byte[1024];
             int len;
@@ -114,10 +166,11 @@ public class ReceiveSocket {
             mInputStream.close();
             mObjectInputStream.close();
             mFileOutputStream.close();
-        } catch (Exception e) {
+        }catch (Exception e){
             mHandler.sendEmptyMessage(70);
             Log.e(TAG, "文件接收异常");
         }
+
     }
 
     /**

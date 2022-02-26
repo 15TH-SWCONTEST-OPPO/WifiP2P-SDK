@@ -1,5 +1,6 @@
 package wifip2p.wifi.com.wifip2p.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
@@ -9,8 +10,11 @@ import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -25,6 +29,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,11 +38,12 @@ import wifip2p.wifi.com.wifip2p.Constant;
 import wifip2p.wifi.com.wifip2p.FileBean;
 import wifip2p.wifi.com.wifip2p.R;
 import wifip2p.wifi.com.wifip2p.TransBean;
+import wifip2p.wifi.com.wifip2p.WifiState;
 import wifip2p.wifi.com.wifip2p.socket.CameraSocket;
-import wifip2p.wifi.com.wifip2p.socket.ReceiveSocket;
 import wifip2p.wifi.com.wifip2p.socket.SendSocket;
 import wifip2p.wifi.com.wifip2p.utils.FileUtils;
 import wifip2p.wifi.com.wifip2p.utils.Md5Util;
+import wifip2p.wifi.com.wifip2p.utils.WifiUtils;
 
 /**
  * 发送文件界面
@@ -47,7 +53,7 @@ import wifip2p.wifi.com.wifip2p.utils.Md5Util;
  * 3、选择要传输的文件路径
  * 4、把该文件通过socket发送到服务端
  */
-public class SendFileActivity extends BaseActivity implements View.OnClickListener, SurfaceHolder.Callback {
+public class SendCameraActivity extends BaseActivity implements View.OnClickListener, SurfaceHolder.Callback {
 
     private static final String TAG = "SendFileActivity";
 
@@ -66,6 +72,9 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
     public Camera.Size size;
     private boolean mark = true;
     private int count;
+    private WifiUtils wifiUtils;
+
+    private WifiP2pInfo mmWifiP2pInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,13 +84,19 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         Button mBtnConnectServer = (Button) findViewById(R.id.btn_connectserver);
         Button mBtnSendText = (Button) findViewById(R.id.btn_sendtext);
         Button mBtnSendCamera = (Button) findViewById(R.id.btn_sendcamera);
+        Button mBtnCancelConnect = (Button) findViewById(R.id.btn_cancelconnect);
         mTvDevice = (ListView) findViewById(R.id.lv_device);
 
         mBtnChoseFile.setOnClickListener(this);
         mBtnConnectServer.setOnClickListener(this);
         mBtnSendText.setOnClickListener(this);
         mBtnSendCamera.setOnClickListener(this);
+        mBtnCancelConnect.setOnClickListener(this);
 
+        // 创建蓝牙工具类
+        wifiUtils = new WifiUtils(this);
+        //wifiUtils.setupService();
+        //mInput = (EditText) findViewById(R.id.input);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
@@ -113,26 +128,67 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                 sendSocket.createSendSocket();
                 break;
             case R.id.btn_sendcamera:
-                type = Constant.CAMERA;
-                if (mWifiP2pInfo == null){
-                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
-                    break;
-                }
-                if(mWifiP2pInfo.groupOwnerAddress==null){
-                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
-                    break;
-                }
-                hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
-                if(hostAddress==null||hostAddress.equals("")){
-                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
-                }else{
-                    sendVideo(hostAddress);
-                }
+                wifiUtils.setupService();
+                wifiUtils.connect(mWifiP2pInfo,mHandler);
+                //sendVideo();
+
                 break;
+            case R.id.btn_cancelconnect:
+                cancelConnect();
             default:
                 break;
 
         }
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            if(msg.what==1){
+                sendVideo();
+            }
+
+        }
+    };
+    private void cancelConnect() {
+        mWifiP2pManager.cancelConnect(mChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                // WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION 广播，此时就可以调用 requestPeers 方法获取设备列表信息
+                Log.e(TAG, "搜索设备成功");
+            }
+
+            @Override
+            public void onFailure(int reasonCode) {
+                Log.e(TAG, "搜索设备失败");
+            }
+        });
+    }
+
+    //发送视频 其实也是发送一张一张的图片
+    public void sendVideo() {
+        mark = true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+                    @Override
+                    public void onPreviewFrame(byte[] data, Camera camera) {
+                        count++;
+                        Camera.Size size = camera.getParameters().getPreviewSize();
+                        final YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        image.compressToJpeg(new Rect(0, 0, mWidth, mHeight), 100, stream);
+                        byte[] imageBytes = stream.toByteArray();
+                        //wifiUtils.send(imageBytes, "video");
+                        if (count % 2 == 0 && mark) {
+                            Log.d(TAG,"发送数据");
+
+                        }
+                    }
+                });
+            }
+        }).start();
     }
 
     /**
@@ -153,6 +209,12 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         });
     }
 
+    @Override
+    public void onConnection(WifiP2pInfo wifiP2pInfo) {
+        super.onConnection(wifiP2pInfo);
+        mmWifiP2pInfo = wifiP2pInfo;
+    }
+
     /**
      * 连接设备
      */
@@ -161,17 +223,32 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         if (wifiP2pDevice != null) {
             config.deviceAddress = wifiP2pDevice.deviceAddress;
             config.wps.setup = WpsInfo.PBC;
+
             mWifiP2pManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
                 @Override
                 public void onSuccess() {
-                    Log.e(TAG, "连接成功");
-                    Toast.makeText(SendFileActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
+                    Log.d("测试", "连接成功");
+
+                    /*if(mWifiP2pInfo==null) {
+                        Toast.makeText(SendCameraActivity.this,"连接不存在",Toast.LENGTH_LONG).show();
+                    }else{
+                        //wifiUtils.connect(mWifiP2pInfo);
+                        Toast.makeText(SendCameraActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
+                    }*/
+
                 }
 
                 @Override
                 public void onFailure(int reason) {
                     Log.e(TAG, "连接失败");
-                    Toast.makeText(SendFileActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SendCameraActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
+                }
+            });
+            mWifiP2pManager.requestConnectionInfo(mChannel, new WifiP2pManager.ConnectionInfoListener() {
+                @Override
+                public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
+                    Log.d(TAG,"获得连接对象");
+                    mWifiP2pInfo = wifiP2pInfo;
                 }
             });
         }
@@ -202,17 +279,17 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                     if (path != null) {
                         final File file = new File(path);
                         if (!file.exists() ) {
-                            Toast.makeText(SendFileActivity.this,"文件路径找不到",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SendCameraActivity.this,"文件路径找不到",Toast.LENGTH_SHORT).show();
                             return;
                         }
                         if (mWifiP2pInfo == null){
-                            Toast.makeText(SendFileActivity.this,"连接不存在",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SendCameraActivity.this,"连接不存在",Toast.LENGTH_SHORT).show();
                             return;
                         }
                         String md5 = Md5Util.getMd5(file);
                         FileBean fileBean = new FileBean(file.getPath(), file.length(), md5);
                         String hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
-                        new SendTask(SendFileActivity.this, fileBean).execute(hostAddress);
+                        new SendTask(SendCameraActivity.this, fileBean).execute(hostAddress);
                     }
                 }
             }

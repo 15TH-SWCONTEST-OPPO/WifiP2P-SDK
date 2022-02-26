@@ -40,18 +40,21 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     public void sendFile(View v){
-        startActivity(new Intent(this,SendFileActivity.class));
+        startActivity(new Intent(this,SendCameraActivity.class));
     }
 
     public void receiveFile(View v){
-        startActivity(new Intent(this,ReceiveFileActivity.class));
+        startActivity(new Intent(this,ReceiveCameraActivity.class));
     }
 
+    //申请权限
     @AfterPermissionGranted(1000)
     private void requireSomePermission() {
         String[] perms = {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.CAMERA
         };
         if (EasyPermissions.hasPermissions(this, perms)) {
            //有权限

@@ -8,6 +8,10 @@
     android:orientation="vertical"
     tools:context="wifip2p.wifi.com.wifip2p.activity.SendFileActivity">
 
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"/>
 
     <Button
         android:id="@+id/btn_connectserver"
@@ -16,6 +20,33 @@
         android:layout_marginTop="20dp"
         android:text="建立配对连接"/>
 
+    <Button
+        android:id="@+id/btn_cancelconnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="取消配对连接"/>
+
+    <Button
+        android:id="@+id/btn_chosefile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="选择文件发送"/>
+
+    <Button
+        android:id="@+id/btn_sendtext"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送文本" />
+
+    <Button
+        android:id="@+id/btn_sendcamera"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送摄像头" />
 
     <TextView
         android:layout_width="match_parent"
@@ -30,11 +61,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"/>
 
-    <Button
-        android:id="@+id/btn_chosefile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="选择文件发送"/>
+
 
 </LinearLayout>

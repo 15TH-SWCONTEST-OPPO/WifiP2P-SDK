@@ -58,6 +58,7 @@ public class BaseActivity extends AppCompatActivity implements Wifip2pActionList
     public void onConnection(WifiP2pInfo wifiP2pInfo) {
         if (wifiP2pInfo != null) {
             mWifiP2pInfo = wifiP2pInfo;
+            Log.d("测试","在BaseActivity中");
             Log.e(TAG, "WifiP2pInfo:" + wifiP2pInfo);
         }
     }
@@ -74,7 +75,7 @@ public class BaseActivity extends AppCompatActivity implements Wifip2pActionList
     @Override
     public void onPeersInfo(Collection<WifiP2pDevice> wifiP2pDeviceList) {
         for (WifiP2pDevice device : wifiP2pDeviceList) {
-            Log.e(TAG, "连接的设备信息：" + device.deviceName + "--------" + device.deviceAddress);
+            Log.e(TAG, "可用的设备信息：" + device.deviceName + "--------" + device.deviceAddress);
         }
     }
 

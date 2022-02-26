@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.util.Pair;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,8 +12,12 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.security.PublicKey;
 
+import wifip2p.wifi.com.wifip2p.Constant;
 import wifip2p.wifi.com.wifip2p.FileBean;
+import wifip2p.wifi.com.wifip2p.TransBean;
+import wifip2p.wifi.com.wifip2p.activity.SendTask;
 
 /**
  * date：2018/2/24 on 18:10
@@ -26,6 +31,9 @@ public class SendSocket {
     private FileBean mFileBean;
     private String mAddress;
     private File mFile;
+    private String mText;
+    private String mType;
+    private TransBean mTransBean;
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
 
@@ -53,27 +61,95 @@ public class SendSocket {
         }
     };
 
-    public SendSocket(FileBean fileBean, String address, ProgressSendListener listener) {
-        mFileBean = fileBean;
+    public SendSocket(TransBean transBean, String address, ProgressSendListener listener) {
         mAddress = address;
         mlistener = listener;
+        mType = transBean.type;
+        mTransBean = transBean;
+        if(transBean.type.equals(Constant.FILE)){
+            mFileBean = transBean.fileBean;
+        }
     }
 
     public void createSendSocket() {
+        switch (mType){
+            case Constant.FILE:
+                sendFile();
+                break;
+            case Constant.TEXT:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        sendText();
+                    }
+                }).start();
+
+                break;
+            case Constant.CAMERA:
+                sendCamera();
+                break;
+        }
+    }
+
+    private void sendCamera() {
+
+    }
+
+    public void sendVideo(){
+
+    }
+
+    private void sendText() {
         try {
+            // 创建Socket对象
             Socket socket = new Socket();
             InetSocketAddress inetSocketAddress = new InetSocketAddress(mAddress, PORT);
+            // 连接对方
             socket.connect(inetSocketAddress);
+            // 获得socket对象的输出流
             OutputStream outputStream = socket.getOutputStream();
+            //创建一个对象输出流
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-            objectOutputStream.writeObject(mFileBean);
+            //将fileBean写入其中
+            objectOutputStream.writeObject(mTransBean);
+
+            outputStream.close();
+            objectOutputStream.close();
+            socket.close();
+            mHandler.sendEmptyMessage(20);
+            Log.e(TAG, "文本发送成功");
+        } catch (Exception e) {
+            mHandler.sendEmptyMessage(30);
+            Log.e(TAG, "文本发送异常");
+        }
+    }
+
+    public void sendFile(){
+        try {
+            // 创建Socket对象
+            Socket socket = new Socket();
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(mAddress, PORT);
+            // 连接对方
+            socket.connect(inetSocketAddress);
+            // 获得socket对象的输出流
+            OutputStream outputStream = socket.getOutputStream();
+            //创建一个对象输出流
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+            //将fileBean写入其中
+            objectOutputStream.writeObject(mTransBean);
+            //得到需要传输的文件
             mFile = new File(mFileBean.filePath);
+            // 创建文件输入流
             FileInputStream inputStream = new FileInputStream(mFile);
+
             long size = mFileBean.fileLength;
             long total = 0;
+
             byte bytes[] = new byte[1024];
             int len;
+            //
             while ((len = inputStream.read(bytes)) != -1) {
+                // 将数据写入流中
                 outputStream.write(bytes, 0, len);
                 total += len;
                 int progress = (int) ((total * 100) / size);
@@ -94,7 +170,6 @@ public class SendSocket {
             Log.e(TAG, "文件发送异常");
         }
     }
-
     /**
      * 监听发送进度
      */

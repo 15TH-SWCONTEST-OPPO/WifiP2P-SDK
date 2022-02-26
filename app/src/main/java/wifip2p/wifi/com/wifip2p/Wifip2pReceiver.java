@@ -61,6 +61,7 @@ public class Wifip2pReceiver extends BroadcastReceiver {
                     mWifiP2pManager.requestConnectionInfo(mChannel, new WifiP2pManager.ConnectionInfoListener() {
                         @Override
                         public void onConnectionInfoAvailable(WifiP2pInfo info) {
+                            Log.d("测试","Receiver");
                             mListener.onConnection(info);
                         }
                     });
