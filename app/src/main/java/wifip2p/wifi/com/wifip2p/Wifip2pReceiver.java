@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
@@ -54,21 +55,30 @@ public class Wifip2pReceiver extends BroadcastReceiver {
                 });
                 break;
 
-            // WiFi P2P连接发生变化
             case WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION:
                 NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+                WifiP2pInfo wifiP2pInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_INFO);
                 if (networkInfo.isConnected()){
-                    mWifiP2pManager.requestConnectionInfo(mChannel, new WifiP2pManager.ConnectionInfoListener() {
-                        @Override
-                        public void onConnectionInfoAvailable(WifiP2pInfo info) {
-                            Log.d("测试","Receiver");
-                            mListener.onConnection(info);
-                        }
-                    });
-                }else {
-                    mListener.onDisconnection();
+                    mListener.onConnection(wifiP2pInfo);
                 }
+                //WifiP2pGroup wifiP2pGroup = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_GROUP);
                 break;
+
+            // WiFi P2P连接发生变化
+//            case WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION:
+//                NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+//                if (networkInfo.isConnected()){
+//                    mWifiP2pManager.requestConnectionInfo(mChannel, new WifiP2pManager.ConnectionInfoListener() {
+//                        @Override
+//                        public void onConnectionInfoAvailable(WifiP2pInfo info) {
+//                            Log.d("测试","Receiver");
+//                            mListener.onConnection(info);
+//                        }
+//                    });
+//                }else {
+//                    mListener.onDisconnection();
+//                }
+//                break;
 
             // WiFi P2P设备信息发生变化
             case WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION:

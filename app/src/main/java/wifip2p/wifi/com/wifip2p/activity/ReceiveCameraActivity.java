@@ -29,7 +29,8 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
     private ProgressDialog mProgressDialog;
     private Intent mIntent;
     private WifiUtils wifiUtils;
-    private ImageView imageView;
+    private ImageView cameraView;
+    private ImageView photoView;
 
 
     // 创建一个服务连接，与写好的WifiService进行连接
@@ -51,7 +52,7 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_receive_file);
+        setContentView(R.layout.activity_receive_camera);
         Button btnCreate = (Button) findViewById(R.id.btn_create);
         Button btnRemove = (Button) findViewById(R.id.btn_remove);
         btnCreate.setOnClickListener(this);
@@ -65,26 +66,22 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
         initView();
     }
 
-
-
     private void initView() {
-        imageView = (ImageView) findViewById(R.id.camera_video);
+        cameraView = (ImageView) findViewById(R.id.camera_video);
+        photoView = (ImageView) findViewById(R.id.camera_photo);
     }
 
     private void initBlue() {
         wifiUtils.setOnDataReceivedListener(new WifiUtils.OnDataReceivedListener() {
             public void onDataReceived(byte[] data, String message) {
-//                Log.d(TAG,message+"0000000000000000000000000");
-//                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-//                imageView.setImageBitmap(bitmap);
                 if (message.equals("text") && data.length != 0) {
                     String text = new String(data);
                     Toast.makeText(ReceiveCameraActivity.this, text, Toast.LENGTH_SHORT).show();
                 } else if (message.equals("photo") && data.length != 0) {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    imageView.setImageBitmap(bitmap);
+                    photoView.setImageBitmap(bitmap);
                 } else if (message.equals("video") && data.length != 0) {
-                    imageView.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
+                    cameraView.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
                 }
             }
         });

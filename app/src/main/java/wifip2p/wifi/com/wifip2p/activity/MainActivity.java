@@ -39,11 +39,19 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         requireSomePermission();
     }
 
-    public void sendFile(View v){
+    public void sendFile(View v) {
+        startActivity(new Intent(this,SendFileActivity.class));
+    }
+
+    public void receiveFile(View v) {
+        startActivity(new Intent(this,ReceiveFileActivity.class));
+    }
+
+    public void sendCamera(View v){
         startActivity(new Intent(this,SendCameraActivity.class));
     }
 
-    public void receiveFile(View v){
+    public void receiveCamera(View v){
         startActivity(new Intent(this,ReceiveCameraActivity.class));
     }
 

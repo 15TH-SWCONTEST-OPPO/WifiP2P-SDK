@@ -47,7 +47,7 @@ import wifip2p.wifi.com.wifip2p.utils.WifiUtils;
 
 /**
  * 发送文件界面
- *
+ * <p>
  * 1、搜索设备信息
  * 2、选择设备连接服务端组群信息
  * 3、选择要传输的文件路径
@@ -74,18 +74,19 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     private int count;
     private WifiUtils wifiUtils;
 
-    private WifiP2pInfo mmWifiP2pInfo;
+    private Integer sendType = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_send_file);
+        setContentView(R.layout.activity_send_camera);
         Button mBtnChoseFile = (Button) findViewById(R.id.btn_chosefile);
         Button mBtnConnectServer = (Button) findViewById(R.id.btn_connectserver);
         Button mBtnSendText = (Button) findViewById(R.id.btn_sendtext);
         Button mBtnSendCamera = (Button) findViewById(R.id.btn_sendcamera);
         Button mBtnCancelConnect = (Button) findViewById(R.id.btn_cancelconnect);
         mTvDevice = (ListView) findViewById(R.id.lv_device);
+        mInput = findViewById(R.id.edit_text);
 
         mBtnChoseFile.setOnClickListener(this);
         mBtnConnectServer.setOnClickListener(this);
@@ -93,26 +94,29 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
         mBtnSendCamera.setOnClickListener(this);
         mBtnCancelConnect.setOnClickListener(this);
 
-        // 创建蓝牙工具类
+        // 创建wifi工具类
         wifiUtils = new WifiUtils(this);
-        //wifiUtils.setupService();
+        wifiUtils.setupService();
         //mInput = (EditText) findViewById(R.id.input);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         mSurfaceHolder.addCallback(this);
-
+        cancelConnect();
+        wifiUtils.disconnect();
     }
 
     @Override
     public void onClick(View v) {
-        String hostAddress = "";
-        String type = "";
         switch (v.getId()) {
             case R.id.btn_chosefile:
-                chooseFile();
+                //chooseFile();
+                wifiUtils.disconnect();
                 break;
             case R.id.btn_connectserver:
+                sendType = 0;
+                wifiUtils.disconnect();
+                cancelConnect();
                 mDialog = new AlertDialog.Builder(this, R.style.Transparent).create();
                 mDialog.show();
                 mDialog.setCancelable(false);
@@ -120,70 +124,124 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                 //搜索设备
                 connectServer();
                 break;
+            case R.id.btn_sendphoto:
+                if (mWifiP2pInfo == null) {
+                    Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
+                }
+                sendType = 2;
+                wifiUtils.disconnect();
+                wifiUtils.connect(mWifiP2pInfo, mHandler);
+
+                break;
             case R.id.btn_sendtext:
-                type = Constant.TEXT;
-                hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
-                TransBean transBean = new TransBean(Constant.TEXT,"你浩",new FileBean());
-                SendSocket sendSocket = new SendSocket(transBean,hostAddress,null);
-                sendSocket.createSendSocket();
+                if (mWifiP2pInfo == null) {
+                    Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
+                }
+                sendType = 1;
+                wifiUtils.disconnect();
+                wifiUtils.connect(mWifiP2pInfo, mHandler);
+
                 break;
             case R.id.btn_sendcamera:
-                wifiUtils.setupService();
-                wifiUtils.connect(mWifiP2pInfo,mHandler);
-                //sendVideo();
-
+                if (mWifiP2pInfo == null) {
+                    Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
+                }
+                sendType = 3;
+                wifiUtils.disconnect();
+                wifiUtils.connect(mWifiP2pInfo, mHandler);
                 break;
             case R.id.btn_cancelconnect:
+                sendType = 0;
+                wifiUtils.disconnect();
                 cancelConnect();
             default:
-                break;
 
+                break;
         }
     }
 
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
-            if(msg.what==1){
-                sendVideo();
+            if (msg.what == 1) {
+                if (sendType == 1) {
+                    sendText();
+                } else if (sendType == 2) {
+                    sendPhoto();
+                } else if (sendType == 3) {
+                    sendVideo();
+                }
             }
-
         }
     };
+
+
     private void cancelConnect() {
-        mWifiP2pManager.cancelConnect(mChannel, new WifiP2pManager.ActionListener() {
+        mWifiP2pManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
                 // WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION 广播，此时就可以调用 requestPeers 方法获取设备列表信息
-                Log.e(TAG, "搜索设备成功");
+                Log.e(TAG, "取消成功");
             }
 
             @Override
             public void onFailure(int reasonCode) {
-                Log.e(TAG, "搜索设备失败");
+                Log.e(TAG, "取消失败");
+            }
+        });
+    }
+
+    //发送文本信息
+    public void sendText() {
+        if (mWifiP2pInfo == null) {
+            Toast.makeText(this, "请连接设备", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // 从EditText中得到数据
+        String input = mInput.getText().toString().trim();
+        if (input != null && !input.isEmpty()) {
+            // 发送数据
+            wifiUtils.send(input.getBytes(), "text");
+        } else {
+            // 校验数据格式
+            Toast.makeText(this, "输入信息不能为空", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //发送图片
+    public void sendPhoto() {
+        if (mWifiP2pInfo == null) {
+            Toast.makeText(this, "请连接设备", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        mCamera.takePicture(null, null, new Camera.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] bytes, Camera camera) {
+                wifiUtils.send(bytes, "photo");
+                mCamera.startPreview();
             }
         });
     }
 
     //发送视频 其实也是发送一张一张的图片
     public void sendVideo() {
-        mark = true;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 mCamera.setPreviewCallback(new Camera.PreviewCallback() {
                     @Override
                     public void onPreviewFrame(byte[] data, Camera camera) {
-                        count++;
-                        Camera.Size size = camera.getParameters().getPreviewSize();
-                        final YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        image.compressToJpeg(new Rect(0, 0, mWidth, mHeight), 100, stream);
-                        byte[] imageBytes = stream.toByteArray();
-                        //wifiUtils.send(imageBytes, "video");
-                        if (count % 2 == 0 && mark) {
-                            Log.d(TAG,"发送数据");
-
+                        if (sendType == 3) {
+                            count++;
+                            Camera.Size size = camera.getParameters().getPreviewSize();
+                            final YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            image.compressToJpeg(new Rect(0, 0, mWidth, mHeight), 100, stream);
+                            byte[] imageBytes = stream.toByteArray();
+                            if (count % 2 == 0 && mark) {
+                                Log.d(TAG, "发送数据");
+                                wifiUtils.send(imageBytes, "video");
+                            }
                         }
                     }
                 });
@@ -209,12 +267,6 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
         });
     }
 
-    @Override
-    public void onConnection(WifiP2pInfo wifiP2pInfo) {
-        super.onConnection(wifiP2pInfo);
-        mmWifiP2pInfo = wifiP2pInfo;
-    }
-
     /**
      * 连接设备
      */
@@ -228,14 +280,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                 @Override
                 public void onSuccess() {
                     Log.d("测试", "连接成功");
-
-                    /*if(mWifiP2pInfo==null) {
-                        Toast.makeText(SendCameraActivity.this,"连接不存在",Toast.LENGTH_LONG).show();
-                    }else{
-                        //wifiUtils.connect(mWifiP2pInfo);
-                        Toast.makeText(SendCameraActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
-                    }*/
-
+                    Toast.makeText(SendCameraActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -244,10 +289,11 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                     Toast.makeText(SendCameraActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
                 }
             });
+
             mWifiP2pManager.requestConnectionInfo(mChannel, new WifiP2pManager.ConnectionInfoListener() {
                 @Override
                 public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
-                    Log.d(TAG,"获得连接对象");
+                    Log.d(TAG, "获得连接对象");
                     mWifiP2pInfo = wifiP2pInfo;
                 }
             });
@@ -278,12 +324,12 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                     String path = FileUtils.getAbsolutePath(this, uri);
                     if (path != null) {
                         final File file = new File(path);
-                        if (!file.exists() ) {
-                            Toast.makeText(SendCameraActivity.this,"文件路径找不到",Toast.LENGTH_SHORT).show();
+                        if (!file.exists()) {
+                            Toast.makeText(SendCameraActivity.this, "文件路径找不到", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        if (mWifiP2pInfo == null){
-                            Toast.makeText(SendCameraActivity.this,"连接不存在",Toast.LENGTH_SHORT).show();
+                        if (mWifiP2pInfo == null) {
+                            Toast.makeText(SendCameraActivity.this, "连接不存在", Toast.LENGTH_SHORT).show();
                             return;
                         }
                         String md5 = Md5Util.getMd5(file);
@@ -308,6 +354,9 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
         }
 
         //进度条消失
+        if (mDialog == null) {
+            mDialog = new AlertDialog.Builder(this, R.style.Transparent).create();
+        }
         mDialog.dismiss();
         showDeviceInfo();
     }

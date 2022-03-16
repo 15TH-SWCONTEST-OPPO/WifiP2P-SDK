@@ -28,6 +28,7 @@ public class BaseActivity extends AppCompatActivity implements Wifip2pActionList
         super.onCreate(savedInstanceState);
         //注册WifiP2pManager
         mWifiP2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+
         mChannel = mWifiP2pManager.initialize(this, getMainLooper(), this);
 
         //注册广播
@@ -48,7 +49,6 @@ public class BaseActivity extends AppCompatActivity implements Wifip2pActionList
         mWifip2pReceiver = null;
     }
 
-
     @Override
     public void wifiP2pEnabled(boolean enabled) {
         Log.e(TAG, "传输通道是否可用：" + enabled);
@@ -58,7 +58,7 @@ public class BaseActivity extends AppCompatActivity implements Wifip2pActionList
     public void onConnection(WifiP2pInfo wifiP2pInfo) {
         if (wifiP2pInfo != null) {
             mWifiP2pInfo = wifiP2pInfo;
-            Log.d("测试","在BaseActivity中");
+            //Log.d("测试", "在BaseActivity中");
             Log.e(TAG, "WifiP2pInfo:" + wifiP2pInfo);
         }
     }
@@ -72,6 +72,7 @@ public class BaseActivity extends AppCompatActivity implements Wifip2pActionList
     public void onDeviceInfo(WifiP2pDevice wifiP2pDevice) {
         Log.e(TAG, "当前的的设备名称" + wifiP2pDevice.deviceName);
     }
+
     @Override
     public void onPeersInfo(Collection<WifiP2pDevice> wifiP2pDeviceList) {
         for (WifiP2pDevice device : wifiP2pDeviceList) {

@@ -4,8 +4,11 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_main.xml" value="0.2296195652173913" />
+        <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_receive_camera.xml" value="0.12552083333333333" />
         <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_receive_file.xml" value="0.23641304347826086" />
-        <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_send_file.xml" value="0.2296195652173913" />
+        <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_send_camera.xml" value="0.12552083333333333" />
+        <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_send_file.xml" value="0.2" />
+        <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_video_test.xml" value="0.1" />
       </map>
     </option>
   </component>

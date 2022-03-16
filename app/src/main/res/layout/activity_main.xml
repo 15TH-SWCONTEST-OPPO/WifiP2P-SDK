@@ -12,6 +12,19 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="发送相机"
+        android:onClick="sendCamera"/>
+    <Button
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="接收相机"
+        android:onClick="receiveCamera"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:text="发送文件"
         android:onClick="sendFile"/>
     <Button

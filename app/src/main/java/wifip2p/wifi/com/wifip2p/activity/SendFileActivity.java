@@ -47,7 +47,7 @@ import wifip2p.wifi.com.wifip2p.utils.Md5Util;
  * 3、选择要传输的文件路径
  * 4、把该文件通过socket发送到服务端
  */
-public class SendFileActivity extends BaseActivity implements View.OnClickListener, SurfaceHolder.Callback {
+public class SendFileActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "SendFileActivity";
 
@@ -73,20 +73,10 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         setContentView(R.layout.activity_send_file);
         Button mBtnChoseFile = (Button) findViewById(R.id.btn_chosefile);
         Button mBtnConnectServer = (Button) findViewById(R.id.btn_connectserver);
-        Button mBtnSendText = (Button) findViewById(R.id.btn_sendtext);
-        Button mBtnSendCamera = (Button) findViewById(R.id.btn_sendcamera);
         mTvDevice = (ListView) findViewById(R.id.lv_device);
 
         mBtnChoseFile.setOnClickListener(this);
         mBtnConnectServer.setOnClickListener(this);
-        mBtnSendText.setOnClickListener(this);
-        mBtnSendCamera.setOnClickListener(this);
-
-        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
-        mSurfaceHolder = surfaceView.getHolder();
-        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        mSurfaceHolder.addCallback(this);
-
     }
 
     @Override
@@ -105,30 +95,32 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                 //搜索设备
                 connectServer();
                 break;
-            case R.id.btn_sendtext:
-                type = Constant.TEXT;
-                hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
-                TransBean transBean = new TransBean(Constant.TEXT,"你浩",new FileBean());
-                SendSocket sendSocket = new SendSocket(transBean,hostAddress,null);
-                sendSocket.createSendSocket();
-                break;
-            case R.id.btn_sendcamera:
-                type = Constant.CAMERA;
-                if (mWifiP2pInfo == null){
-                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
-                    break;
-                }
-                if(mWifiP2pInfo.groupOwnerAddress==null){
-                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
-                    break;
-                }
-                hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
-                if(hostAddress==null||hostAddress.equals("")){
-                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
-                }else{
-                    sendVideo(hostAddress);
-                }
-                break;
+            case R.id.btn_cancelconnect:
+                cancelConnect();
+//            case R.id.btn_sendtext:
+//                type = Constant.TEXT;
+//                hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
+//                TransBean transBean = new TransBean(Constant.TEXT,"你浩",new FileBean());
+//                SendSocket sendSocket = new SendSocket(transBean,hostAddress,null);
+//                sendSocket.createSendSocket();
+//                break;
+//            case R.id.btn_sendcamera:
+//                type = Constant.CAMERA;
+//                if (mWifiP2pInfo == null){
+//                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
+//                    break;
+//                }
+//                if(mWifiP2pInfo.groupOwnerAddress==null){
+//                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
+//                    break;
+//                }
+//                hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
+//                if(hostAddress==null||hostAddress.equals("")){
+//                    Toast.makeText(this,"未连接设备",Toast.LENGTH_LONG).show();
+//                }else{
+//                    sendVideo(hostAddress);
+//                }
+//                break;
             default:
                 break;
 
@@ -177,6 +169,21 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
+
+    private void cancelConnect() {
+        mWifiP2pManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                // WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION 广播，此时就可以调用 requestPeers 方法获取设备列表信息
+                Log.e(TAG, "取消成功");
+            }
+
+            @Override
+            public void onFailure(int reasonCode) {
+                Log.e(TAG, "取消失败");
+            }
+        });
+    }
 
     /**
      * 客户端进行选择文件
@@ -233,87 +240,6 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         //进度条消失
         mDialog.dismiss();
         showDeviceInfo();
-    }
-
-
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        try {
-            mCamera = Camera.open();
-            Camera.Parameters mPara = mCamera.getParameters();
-            List<Camera.Size> pictureSizes = mCamera.getParameters().getSupportedPictureSizes();
-            List<Camera.Size> previewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-
-            int previewSizeIndex = -1;
-            Camera.Size psize;
-            int height_sm = 999999;
-            int width_sm = 999999;
-            //获取设备最小分辨率图片，图片越清晰，传输越卡
-            for (int i = 0; i < previewSizes.size(); i++) {
-                psize = previewSizes.get(i);
-                if (psize.height <= height_sm && psize.width <= width_sm) {
-                    previewSizeIndex = i;
-                    height_sm = psize.height;
-                    width_sm = psize.width;
-                }
-            }
-
-            if (previewSizeIndex != -1) {
-                mWidth = previewSizes.get(previewSizeIndex).width;
-                mHeight = previewSizes.get(previewSizeIndex).height;
-                mPara.setPreviewSize(mWidth, mHeight);
-            }
-            mCamera.setParameters(mPara);
-            mCamera.setPreviewDisplay(mSurfaceHolder);
-            mCamera.startPreview();
-
-            size = mCamera.getParameters().getPreviewSize();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //发送视频 其实也是发送一张一张的图片
-    public void sendVideo(String host) {
-
-        CameraSocket cameraSocket = new CameraSocket();
-        cameraSocket.init(host);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mCamera.setPreviewCallback(new Camera.PreviewCallback() {
-                    @Override
-                    public void onPreviewFrame(byte[] data, Camera camera) {
-                        count++;
-                        Camera.Size size = camera.getParameters().getPreviewSize();
-                        final YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        image.compressToJpeg(new Rect(0, 0, mWidth, mHeight), 100, stream);
-                        byte[] imageBytes = stream.toByteArray();
-                        if (count % 2 == 0 && mark) {
-                            //mBt.send(imageBytes, "video");
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    cameraSocket.send(imageBytes);
-                                }
-                            }).start();
-
-                        }
-                    }
-                });
-            }
-        }).start();
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-
     }
 
     /**

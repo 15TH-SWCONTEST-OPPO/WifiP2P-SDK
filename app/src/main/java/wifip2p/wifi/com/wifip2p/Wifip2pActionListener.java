@@ -11,15 +11,15 @@ import java.util.Collection;
  * description: 监听广播回调信息
  */
 
-    public interface Wifip2pActionListener extends WifiP2pManager.ChannelListener {
+public interface Wifip2pActionListener extends WifiP2pManager.ChannelListener {
 
-        void wifiP2pEnabled(boolean enabled);
+    void wifiP2pEnabled(boolean enabled);
 
-        void onConnection(WifiP2pInfo wifiP2pInfo);
+    void onConnection(WifiP2pInfo wifiP2pInfo);
 
-        void onDisconnection();
+    void onDisconnection();
 
-        void onDeviceInfo(WifiP2pDevice wifiP2pDevice);
+    void onDeviceInfo(WifiP2pDevice wifiP2pDevice);
 
-        void onPeersInfo(Collection<WifiP2pDevice> wifiP2pDeviceList);
-    }
+    void onPeersInfo(Collection<WifiP2pDevice> wifiP2pDeviceList);
+}

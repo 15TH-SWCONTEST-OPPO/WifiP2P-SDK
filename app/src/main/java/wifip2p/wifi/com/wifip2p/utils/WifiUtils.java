@@ -184,6 +184,7 @@ public class WifiUtils {
                     if (readBuf != null && readBuf.length > 0) {
                         if (mDataReceivedListener != null)
                             // 为Listener设置值
+                            Log.d("WifiUtil",str);
                             mDataReceivedListener.onDataReceived(readBuf, str);
                     }
                     break;
@@ -233,11 +234,7 @@ public class WifiUtils {
     };
 
     public void connect(WifiP2pInfo wifiP2pInfo, Handler handler) {
-        // 获得设备的地址
-        //String address = data.getExtras().getString(WifiState.EXTRA_DEVICE_ADDRESS);
-        // 获得蓝牙设备
-        //BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        // 与蓝牙设备连接
+        // 与wifi设备连接
         mChatService.connect(wifiP2pInfo, handler);
     }
 
@@ -255,10 +252,10 @@ public class WifiUtils {
         if (mChatService != null) {
             isServiceRunning = false;
             mChatService.stop();
-            if (mChatService.getState() == WifiState.STATE_NONE) {
-                isServiceRunning = true;
-                mChatService.start(WifiUtils.this.isAndroid);
-            }
+//            if (mChatService.getState() == WifiState.STATE_NONE) {
+//                isServiceRunning = true;
+//                mChatService.start(WifiUtils.this.isAndroid);
+//            }
         }
     }
 
