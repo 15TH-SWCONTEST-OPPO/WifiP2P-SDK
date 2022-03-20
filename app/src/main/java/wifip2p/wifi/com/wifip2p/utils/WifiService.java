@@ -65,19 +65,16 @@ public class WifiService {
 
     private WifiInfo mWifiInfo;
 
-    private WifiP2pDevice mWifiP2pDevice;
-
     public WifiService(Context context, Handler handler) {
         mState = WifiState.STATE_NONE;
         mHandler = handler;
     }
 
     // 传入Handler，方便监听事件，传入WifiInfo和WiFiP2pDevice，方便连接
-    public WifiService(Context mContext, Handler handler, WifiInfo wifiInfo, WifiP2pDevice wifiP2pDevice) {
+    public WifiService(Context mContext, Handler handler, WifiInfo wifiInfo) {
         mState = WifiState.STATE_NONE;
         mHandler = handler;
         mWifiInfo = wifiInfo;
-        mWifiP2pDevice = wifiP2pDevice;
     }
 
     //加锁的更新状态的方法
@@ -109,7 +106,7 @@ public class WifiService {
         }
     }
 
-    public synchronized void disconnect(){
+    public synchronized void disconnect() {
         if (mConnectThread != null) {
             mConnectThread.cancel();
             mConnectThread = null;
@@ -122,7 +119,7 @@ public class WifiService {
 
     // 连接方法，此处统一语义为建立Socket连接，需要的参数仅有address,次数传入一个device
     // 连接方法为接收之后进行，在此方法之中会创建一个连接线程，并更新状态
-    public synchronized void connect(WifiP2pInfo wifiP2pInfo, Handler handler) {
+    public synchronized void connect(WifiP2pInfo wifiP2pInfo,Handler mHandler) {
         if (mState == WifiState.STATE_CONNECTING) {
             if (mConnectThread != null) {
                 mConnectThread.cancel();
@@ -135,7 +132,7 @@ public class WifiService {
             mConnectedThread = null;
         }
         //根据传入的Device建立一个连接线程
-        mConnectThread = new ConnectThread(wifiP2pInfo, handler);
+        mConnectThread = new ConnectThread(wifiP2pInfo,mHandler);
         mConnectThread.start();
         setState(WifiState.STATE_CONNECTING);
     }
@@ -155,10 +152,10 @@ public class WifiService {
             mSecureAcceptThread.cancel();
             mSecureAcceptThread = null;
         }
-
         mConnectedThread = new ConnectedThread(socket, socketType);
-        mConnectedThread.start();
-
+        if (socketType.equals("Receive")) {
+            mConnectedThread.start();
+        }
 
         Message msg = mHandler.obtainMessage(WifiState.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
@@ -186,7 +183,6 @@ public class WifiService {
         }
 
         mConnectedThread = new ConnectedThread(socket, send);
-
         Message msg = mHandler.obtainMessage(WifiState.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(WifiState.DEVICE_NAME, "");
@@ -194,8 +190,8 @@ public class WifiService {
         msg.setData(bundle);
         setState(WifiState.STATE_CONNECTED);
         Message m = new Message();
-        m.what = 1;
-        mmHandler.sendEmptyMessage(1);
+        m.what = 2;
+        mmHandler.sendMessage(m);
         //mmHandler.sendMessage(m);
         mHandler.sendMessage(msg);
     }
@@ -228,12 +224,15 @@ public class WifiService {
         r.write(out);
     }
 
-    private void connectionFailed() {
+    private void connectionFailed(Handler mHandler) {
         //WifiService.this.start(WifiService.this.isAndroid);
-        if(mConnectThread!=null){
+        if (mConnectThread != null) {
             mConnectThread.cancel();
             mConnectThread = null;
         }
+        Message msg = new Message();
+        msg.what = 1;
+        mHandler.sendMessage(msg);
     }
 
     private void connectionLost() {
@@ -310,18 +309,19 @@ public class WifiService {
         private WifiP2pDevice mmDevice;
         private WifiP2pInfo mmWifiInfo;
         private String mSocketType;
+        private InetSocketAddress inetSocketAddress;
         private Handler mmHandler;
 
-        public ConnectThread(WifiP2pInfo wifiInfo, Handler handler) {
+        public ConnectThread(WifiP2pInfo wifiInfo,Handler handler) {
             //mmDevice = device;
             mmSocket = new Socket();
             mmWifiInfo = wifiInfo;
             mmHandler = handler;
+            inetSocketAddress = new InetSocketAddress(mmWifiInfo.groupOwnerAddress.getHostAddress(), Constant.PORT);
         }
 
         public void run() {
             try {
-                InetSocketAddress inetSocketAddress = new InetSocketAddress(mmWifiInfo.groupOwnerAddress.getHostAddress(), Constant.PORT);
                 mmSocket.connect(inetSocketAddress);
             } catch (IOException e) {
                 try {
@@ -329,14 +329,14 @@ public class WifiService {
                 } catch (IOException e2) {
                 }
                 Log.d(TAG, "客户端连接服务端失败");
-                connectionFailed();
+                connectionFailed(mmHandler);
                 return;
             }
             synchronized (WifiService.this) {
                 mConnectThread = null;
             }
             // 调用连接之后传输数据的线程
-            connected(mmSocket, "send", mmHandler);
+            connected(mmSocket, "send",mmHandler);
         }
 
         public void cancel() {
@@ -368,8 +368,7 @@ public class WifiService {
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
-             errorTime = 0;
-            Log.d(TAG, "创建了接收线程");
+            errorTime = 0;
 
             try {
                 tmpIn = socket.getInputStream();
@@ -429,20 +428,20 @@ public class WifiService {
 
                         if (textCount == 4) {
                             msg.arg1 = 0;
-                            Log.d(TAG,"text");
+                            Log.d(TAG, "text");
                             mHandler.sendMessage(msg);
                         } else if (photoCount == 4) {
                             msg.arg1 = 1;
-                            Log.d(TAG,"photo");
+                            Log.d(TAG, "photo");
                             mHandler.sendMessage(msg);
                         } else if (videoCount == 4) {
                             msg.arg1 = 2;
-                            Log.d(TAG,"video");
+                            Log.d(TAG, "video");
                             mHandler.sendMessage(msg);
                         }
-                    }else{
+                    } else {
                         errorTime++;
-                        if(errorTime>=50){
+                        if (errorTime >= 50) {
                             connectionLost();
                             WifiService.this.start(WifiService.this.isAndroid);
                         }
@@ -477,6 +476,11 @@ public class WifiService {
         }
 
         public void write(byte[] buffer) {
+            /*try {
+                mmOutStream.write(buffer);
+//                        Log.d(TAG,"传递成功");
+            } catch (IOException e) {
+            }*/
             new Thread(new Runnable() {
                 @Override
                 public void run() {

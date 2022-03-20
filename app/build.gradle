@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 30
     buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "wifip2p.wifi.com.wifip2p"
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -25,8 +29,16 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    implementation "org.projectlombok:lombok:1.18.12"
     implementation 'com.android.support:appcompat-v7:26.+'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     //testCompile 'junit:junit:4.12'
     implementation 'pub.devrel:easypermissions:1.1.0'
+//    def camerax_version = "1.0.0-beta07"
+//    // CameraX core library using camera2 implementation
+//    implementation "androidx.camera:camera-camera2:$camerax_version"
+//    // CameraX Lifecycle Library
+//    implementation "androidx.camera:camera-lifecycle:$camerax_version"
+//    // CameraX View class
+//    implementation "androidx.camera:camera-view:1.0.0-alpha26"
 }

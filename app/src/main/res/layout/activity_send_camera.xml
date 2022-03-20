@@ -11,7 +11,7 @@
     <SurfaceView
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
-        android:layout_height="100dp"/>
+        android:layout_height="250dp"/>
 
     <HorizontalScrollView
         android:layout_width="wrap_content"
@@ -65,6 +65,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="发送摄像头" />
+
+            <Button
+                android:id="@+id/btn_capture"
+                android:layout_marginTop="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Capture" />
+
+            <Button
+                android:id="@+id/btn_sendtext"
+                android:layout_marginTop="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="发送文本" />
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -76,12 +90,7 @@
         android:layout_height="wrap_content"
         />
 
-    <Button
-        android:id="@+id/btn_sendtext"
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="发送文本" />
+
 
 
 

@@ -1,5 +1,6 @@
 package wifip2p.wifi.com.wifip2p.activity;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -82,6 +83,7 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     /**
      * 创建组群，等待连接
      */
+    @SuppressLint("MissingPermission")
     public void createGroup() {
 
         mWifiP2pManager.createGroup(mChannel, new WifiP2pManager.ActionListener() {

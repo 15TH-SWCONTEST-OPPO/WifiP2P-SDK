@@ -46,7 +46,7 @@ public class WifiUtils {
     private WifiStateListener mWifiStateListener = null;
     // 事件监听器
     private OnDataReceivedListener mDataReceivedListener = null;
-    // 蓝牙连接事件监听器
+    // wifi连接事件监听器
     private WifiConnectionListener mWifiConnectionListener = null;
 
     private Context mContext;
@@ -117,7 +117,7 @@ public class WifiUtils {
 
     // 创建Service
     public void setupService() {
-        mChatService = new WifiService(mContext, mHandler, mWifiInfo, mWifiP2pDevice);
+        mChatService = new WifiService(mContext, mHandler, mWifiInfo);
     }
 
     // 获得Service的状态
@@ -189,14 +189,6 @@ public class WifiUtils {
                     }
                     break;
                 case WifiState.MESSAGE_DEVICE_NAME:
-                    // 获得设备名称
-                    //mDeviceName = msg.getData().getString(BluetoothState.DEVICE_NAME);
-                    //mDeviceName = mWifiP2pDevice.deviceName;
-                    // 获得设备地址
-                    //mDeviceAddress = mWifiP2pDevice.deviceAddress;
-                    //
-                    //if (mWifiConnectionListener != null)
-                    //    mWifiConnectionListener.onDeviceConnected(mDeviceName, mDeviceAddress);
 
                     isConnected = true;
                     break;
@@ -233,9 +225,9 @@ public class WifiUtils {
         }
     };
 
-    public void connect(WifiP2pInfo wifiP2pInfo, Handler handler) {
+    public void connect(WifiP2pInfo wifiP2pInfo,Handler mHandler) {
         // 与wifi设备连接
-        mChatService.connect(wifiP2pInfo, handler);
+        mChatService.connect(wifiP2pInfo,mHandler);
     }
 
     public static byte[] intToByteArray(int i) throws Exception {
@@ -263,7 +255,7 @@ public class WifiUtils {
         mDataReceivedListener = listener;
     }
 
-    public void setBluetoothConnectionListener(WifiConnectionListener listener) {
+    public void setWifiConnectionListener(WifiConnectionListener listener) {
         mWifiConnectionListener = listener;
     }
 
@@ -309,7 +301,7 @@ public class WifiUtils {
                 sendMsg[i] = data[i - headInfoLength];
             }
         }
-//        Log.d("Server", "发发发");
+        Log.d("Server", "发发发");
         mChatService.write(sendMsg);
     }
 

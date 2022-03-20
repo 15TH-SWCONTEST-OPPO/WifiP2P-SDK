@@ -62,7 +62,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.CAMERA
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_MULTICAST_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE
         };
         if (EasyPermissions.hasPermissions(this, perms)) {
            //有权限

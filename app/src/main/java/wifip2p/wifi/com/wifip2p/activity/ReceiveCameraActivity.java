@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import wifip2p.wifi.com.wifip2p.ProgressDialog;
 import wifip2p.wifi.com.wifip2p.R;
+import wifip2p.wifi.com.wifip2p.WifiState;
 import wifip2p.wifi.com.wifip2p.Wifip2pCameraService;
 import wifip2p.wifi.com.wifip2p.Wifip2pService;
 import wifip2p.wifi.com.wifip2p.utils.WifiUtils;
@@ -59,10 +60,10 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
         btnRemove.setOnClickListener(this);
         wifiUtils = new WifiUtils(this);
 
-        wifiUtils.setupService();
-        wifiUtils.startService(true);
+        //wifiUtils.setupService();
+        //wifiUtils.startService(true);
 
-        initBlue();
+        initWifi();
         initView();
     }
 
@@ -71,7 +72,7 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
         photoView = (ImageView) findViewById(R.id.camera_photo);
     }
 
-    private void initBlue() {
+    private void initWifi() {
         wifiUtils.setOnDataReceivedListener(new WifiUtils.OnDataReceivedListener() {
             public void onDataReceived(byte[] data, String message) {
                 if (message.equals("text") && data.length != 0) {
@@ -86,13 +87,13 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
             }
         });
 
-        wifiUtils.setBluetoothConnectionListener(new WifiUtils.WifiConnectionListener() {
+        wifiUtils.setWifiConnectionListener(new WifiUtils.WifiConnectionListener() {
             public void onDeviceConnected(String name, String address) {
-                Toast.makeText(ReceiveCameraActivity.this, "蓝牙已连接", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ReceiveCameraActivity.this, "wifi已连接", Toast.LENGTH_SHORT).show();
             }
 
             public void onDeviceDisconnected() {
-                Toast.makeText(ReceiveCameraActivity.this, "蓝牙已断开", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ReceiveCameraActivity.this, "wifi已断开", Toast.LENGTH_SHORT).show();
             }
 
             public void onDeviceConnectionFailed() {
@@ -124,6 +125,9 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
             public void onSuccess() {
                 Log.e(TAG, "创建群组成功");
                 Toast.makeText(ReceiveCameraActivity.this, "创建群组成功", Toast.LENGTH_SHORT).show();
+                wifiUtils.disconnect();
+                wifiUtils.setupService();
+                wifiUtils.startService(WifiState.DEVICE_ANDROID);
             }
 
             @Override
