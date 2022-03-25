@@ -32,4 +32,26 @@
         android:layout_height="100dp"
         android:layout_weight="1"
         android:id="@+id/camera_photo"/>
+
+    <Button
+        android:id="@+id/btn_rsend_camera"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送摄像头" />
+
+    <Button
+        android:id="@+id/btn_rsend_image"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送图片" />
+
+    <Button
+        android:id="@+id/btn_disconnect"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="断开连接" />
+
 </LinearLayout>

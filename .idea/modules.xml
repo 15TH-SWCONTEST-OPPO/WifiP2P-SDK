@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/WifiP2P.iml" filepath="$PROJECT_DIR$/.idea/modules/WifiP2P.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/WifiP2P.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/WifiP2P.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/WifiP2P-SDK.iml" filepath="$PROJECT_DIR$/.idea/modules/WifiP2P-SDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/WifiP2P-SDK.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/WifiP2P-SDK.app.iml" />
     </modules>
   </component>
 </project>

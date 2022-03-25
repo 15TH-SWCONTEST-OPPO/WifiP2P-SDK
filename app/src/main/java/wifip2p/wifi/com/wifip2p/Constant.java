@@ -9,4 +9,10 @@ public class Constant {
     public final static String FILE = "file";
 
     public static final int PORT = 15672;
+
+    public final static String SENDCAMERA = "SENDCAMERA";
+
+    public final static String SENDIMAGE = "SENDIMAGE";
+
+    public final static String DISCONNECT = "DICONNNECT";
 }

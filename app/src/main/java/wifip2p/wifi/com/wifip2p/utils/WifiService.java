@@ -47,8 +47,8 @@ import wifip2p.wifi.com.wifip2p.WifiState;
 
 @SuppressLint("NewApi")
 public class WifiService {
-    private static final String TAG = "Bluetooth Service";
-    private static final String NAME_SECURE = "Bluetooth Secure";
+    private static final String TAG = "Wifi Service";
+    private static final String NAME_SECURE = "Wifi Secure";
 
     private final Handler mHandler;
 
@@ -64,6 +64,8 @@ public class WifiService {
     private boolean isAndroid = WifiState.DEVICE_ANDROID;
 
     private WifiInfo mWifiInfo;
+
+    private WifiP2pDevice mWifiP2pDevice;
 
     public WifiService(Context context, Handler handler) {
         mState = WifiState.STATE_NONE;
@@ -119,7 +121,8 @@ public class WifiService {
 
     // 连接方法，此处统一语义为建立Socket连接，需要的参数仅有address,次数传入一个device
     // 连接方法为接收之后进行，在此方法之中会创建一个连接线程，并更新状态
-    public synchronized void connect(WifiP2pInfo wifiP2pInfo,Handler mHandler) {
+    public synchronized void connect(WifiP2pDevice wifiP2pDevice, WifiP2pInfo wifiP2pInfo, Handler mHandler) {
+        mWifiP2pDevice = wifiP2pDevice;
         if (mState == WifiState.STATE_CONNECTING) {
             if (mConnectThread != null) {
                 mConnectThread.cancel();
@@ -132,7 +135,7 @@ public class WifiService {
             mConnectedThread = null;
         }
         //根据传入的Device建立一个连接线程
-        mConnectThread = new ConnectThread(wifiP2pInfo,mHandler);
+        mConnectThread = new ConnectThread(wifiP2pInfo, mHandler);
         mConnectThread.start();
         setState(WifiState.STATE_CONNECTING);
     }
@@ -153,6 +156,8 @@ public class WifiService {
             mSecureAcceptThread = null;
         }
         mConnectedThread = new ConnectedThread(socket, socketType);
+
+        setState(WifiState.STATE_CONNECTED);
         if (socketType.equals("Receive")) {
             mConnectedThread.start();
         }
@@ -161,13 +166,16 @@ public class WifiService {
         Bundle bundle = new Bundle();
         bundle.putString(WifiState.DEVICE_NAME, "");
         bundle.putString(WifiState.DEVICE_ADDRESS, "");
+        if (mWifiP2pDevice != null) {
+            bundle.putString(WifiState.DEVICE_NAME, mWifiP2pDevice.deviceName);
+            bundle.putString(WifiState.DEVICE_ADDRESS, mWifiP2pDevice.deviceAddress);
+        }
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
-        setState(WifiState.STATE_CONNECTED);
     }
 
-    private void connected(Socket socket, String send, Handler mmHandler) {
+    private void connected(Socket socket, String send, WifiP2pInfo mmWifiInfo, Handler mmHandler) {
         if (mConnectThread != null) {
             mConnectThread.cancel();
             mConnectThread = null;
@@ -183,11 +191,14 @@ public class WifiService {
         }
 
         mConnectedThread = new ConnectedThread(socket, send);
+
+        mConnectedThread.start();
         Message msg = mHandler.obtainMessage(WifiState.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(WifiState.DEVICE_NAME, "");
         bundle.putString(WifiState.DEVICE_ADDRESS, "");
         msg.setData(bundle);
+        msg.what = WifiState.STATE_CONNECTED;
         setState(WifiState.STATE_CONNECTED);
         Message m = new Message();
         m.what = 2;
@@ -197,6 +208,7 @@ public class WifiService {
     }
 
     public synchronized void stop() {
+        disconnect();
         if (mConnectThread != null) {
             mConnectThread.cancel();
             mConnectThread = null;
@@ -236,7 +248,7 @@ public class WifiService {
     }
 
     private void connectionLost() {
-        WifiService.this.start(WifiService.this.isAndroid);
+        //WifiService.this.start(WifiService.this.isAndroid);
     }
 
     private class AcceptThread extends Thread {
@@ -312,8 +324,7 @@ public class WifiService {
         private InetSocketAddress inetSocketAddress;
         private Handler mmHandler;
 
-        public ConnectThread(WifiP2pInfo wifiInfo,Handler handler) {
-            //mmDevice = device;
+        public ConnectThread(WifiP2pInfo wifiInfo, Handler handler) {
             mmSocket = new Socket();
             mmWifiInfo = wifiInfo;
             mmHandler = handler;
@@ -336,7 +347,7 @@ public class WifiService {
                 mConnectThread = null;
             }
             // 调用连接之后传输数据的线程
-            connected(mmSocket, "send",mmHandler);
+            connected(mmSocket, "send", mmWifiInfo, mmHandler);
         }
 
         public void cancel() {
@@ -443,11 +454,11 @@ public class WifiService {
                         errorTime++;
                         if (errorTime >= 50) {
                             connectionLost();
-                            WifiService.this.start(WifiService.this.isAndroid);
+                            //WifiService.this.start(WifiService.this.isAndroid);
                         }
                     }
-                    /*
-                    if (valid) {
+
+                    /*if (valid) {
                         byte[] bufLength = new byte[4];
                         for (int i = 0; i < 4; i++) {
                             bufLength[i] = ((Integer) mmInStream.read()).byteValue();
@@ -465,11 +476,11 @@ public class WifiService {
 
                 } catch (IOException e) {
                     connectionLost();
-                    WifiService.this.start(WifiService.this.isAndroid);
+                    //WifiService.this.start(WifiService.this.isAndroid);
                     break;
                 } catch (Exception e) {
                     connectionLost();
-                    WifiService.this.start(WifiService.this.isAndroid);
+                    //WifiService.this.start(WifiService.this.isAndroid);
                     e.printStackTrace();
                 }
             }

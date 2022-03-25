@@ -188,10 +188,15 @@ public class WifiUtils {
                             mDataReceivedListener.onDataReceived(readBuf, str);
                     }
                     break;
-                case WifiState.MESSAGE_DEVICE_NAME:
 
+                case WifiState.MESSAGE_DEVICE_NAME:
+                    mDeviceName = msg.getData().getString(WifiState.DEVICE_NAME);
+                    mDeviceAddress = msg.getData().getString(WifiState.DEVICE_ADDRESS);
+                    if(mWifiConnectionListener != null)
+                        mWifiConnectionListener.onDeviceConnected(mDeviceName, mDeviceAddress);
                     isConnected = true;
                     break;
+
 
                 case WifiState.MESSAGE_TOAST:
                     Toast.makeText(mContext, msg.getData().getString(WifiState.TOAST)
@@ -225,9 +230,9 @@ public class WifiUtils {
         }
     };
 
-    public void connect(WifiP2pInfo wifiP2pInfo,Handler mHandler) {
+    public void connect(WifiP2pDevice wifiP2pDevice,WifiP2pInfo wifiP2pInfo,Handler mHandler) {
         // 与wifi设备连接
-        mChatService.connect(wifiP2pInfo,mHandler);
+        mChatService.connect(wifiP2pDevice,wifiP2pInfo,mHandler);
     }
 
     public static byte[] intToByteArray(int i) throws Exception {
@@ -244,10 +249,6 @@ public class WifiUtils {
         if (mChatService != null) {
             isServiceRunning = false;
             mChatService.stop();
-//            if (mChatService.getState() == WifiState.STATE_NONE) {
-//                isServiceRunning = true;
-//                mChatService.start(WifiUtils.this.isAndroid);
-//            }
         }
     }
 
