@@ -23,35 +23,78 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_weight="1"
+        android:layout_height="200dp"
         android:id="@+id/camera_video"/>
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_weight="1"
+        android:layout_height="200dp"
         android:id="@+id/camera_photo"/>
 
-    <Button
-        android:id="@+id/btn_rsend_camera"
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="发送摄像头" />
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/btn_rsend_image"
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="发送图片" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btn_disconnect"
-        android:layout_marginTop="30dp"
+            <Button
+                android:id="@+id/btn_rsend_camera"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:text="发送摄像头" />
+
+            <Button
+                android:id="@+id/btn_rsend_image"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:text="发送图片" />
+
+            <Button
+                android:id="@+id/btn_disconnect"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:text="断开连接" />
+
+
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="断开连接" />
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/rstart_record"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:text="开始录制视频" />
+
+            <Button
+                android:id="@+id/rstop_record"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:text="停止录制视频" />
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
 
 </LinearLayout>

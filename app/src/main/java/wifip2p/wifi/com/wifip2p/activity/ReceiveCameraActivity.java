@@ -45,11 +45,18 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
         Button sendCamera = findViewById(R.id.btn_rsend_camera);
         Button sendPhoto = findViewById(R.id.btn_rsend_image);
         Button disConnect = findViewById(R.id.btn_disconnect);
+
+        Button startRecord = findViewById(R.id.rstart_record);
+        Button stopRecord = findViewById(R.id.rstop_record);
+
         btnCreate.setOnClickListener(this);
         btnRemove.setOnClickListener(this);
         disConnect.setOnClickListener(this);
         sendCamera.setOnClickListener(this);
         sendPhoto.setOnClickListener(this);
+        startRecord.setOnClickListener(this);
+        stopRecord.setOnClickListener(this);
+
         wifiUtils = new WifiUtils(this);
 
         //wifiUtils.setupService();
@@ -57,7 +64,6 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
 
         initWifi();
         initView();
-
     }
 
     public void sendCommand(String command) {
@@ -73,6 +79,10 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
             wifiUtils.send(Constant.DISCONNECT.getBytes(), "text");
             removeGroup();
             createGroup();
+        } else if (command.equals(Constant.STARTRECORD)) {
+            wifiUtils.send(Constant.STARTRECORD.getBytes(), "text");
+        } else if (command.equals(Constant.STOPRECORD)) {
+            wifiUtils.send(Constant.STOPRECORD.getBytes(), "text");
         } else {
             Toast.makeText(this, "无效指令", Toast.LENGTH_SHORT).show();
         }
@@ -133,6 +143,12 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
                 break;
             case R.id.btn_disconnect:
                 sendCommand(Constant.DISCONNECT);
+                break;
+            case R.id.rstart_record:
+                sendCommand(Constant.STARTRECORD);
+                break;
+            case R.id.rstop_record:
+                sendCommand(Constant.STOPRECORD);
                 break;
         }
     }

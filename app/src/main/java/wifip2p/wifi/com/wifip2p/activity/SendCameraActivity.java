@@ -2,48 +2,67 @@ package wifip2p.wifi.com.wifip2p.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
+import android.media.Image;
+import android.media.ImageReader;
+import android.media.MediaCodec;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Message;
 import android.os.SystemClock;
-import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -68,6 +87,7 @@ import wifip2p.wifi.com.wifip2p.utils.WifiUtils;
  * 3、选择要传输的文件路径
  * 4、把该文件通过socket发送到服务端
  */
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class SendCameraActivity extends BaseActivity implements View.OnClickListener, SurfaceHolder.Callback {
 
     private static final String TAG = "SendFileActivity";
@@ -76,15 +96,12 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     private ArrayList<String> mListDeviceName = new ArrayList();
     private ArrayList<WifiP2pDevice> mListDevice = new ArrayList<>();
     private AlertDialog mDialog;
-    private String type;
 
-    private Camera mCamera;
     private SurfaceHolder mSurfaceHolder;
-    private int mWidth;
-    private int mHeight;
+
     private EditText mInput;
-    private boolean isBluetoothConnnect;
-    public Camera.Size size;
+
+    //记录是否正在传视频
     private boolean mark = true;
     private int count;
     private WifiUtils wifiUtils;
@@ -95,86 +112,102 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     private Boolean isConnected = false;
     private MediaRecorder mediaRecorder;
 
-    private boolean isRecording = false;
+    //camera的相关字段
+    private boolean isOpened = false;
+    private ImageReader imageReader;
+    private Handler mainHandler;
+    private Handler childHandler;
+    private CameraDevice mCameraDevice;
+
+    //动态设置图片的质量
+    private int quality = 30;
+
+    private CameraCaptureSession mCameraCaptureSession;
+
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    static {
+        ORIENTATIONS.append(Surface.ROTATION_0, 90);
+        ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        ORIENTATIONS.append(Surface.ROTATION_270, 180);
+    }
 
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
 
-    private Button captureButton;
-
     private SurfaceView mPreview;
 
+    private Surface mRecorderSurface;
+    private boolean isPicture = false;
+
+    private boolean isRecording = false;
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_camera);
-        Button mBtnChoseFile = (Button) findViewById(R.id.btn_chosefile);
+
         Button mBtnSearchServer = (Button) findViewById(R.id.btn_searchserver);
         Button mBtnSendText = (Button) findViewById(R.id.btn_sendtext);
         Button mBtnSendPhoto = (Button) findViewById(R.id.btn_sendphoto);
         Button mBtnSendCamera = (Button) findViewById(R.id.btn_sendcamera);
         Button mBtnCancelConnect = (Button) findViewById(R.id.btn_cancelconnect);
+        Button mBtnStartRecord = (Button) findViewById(R.id.start_record);
+        Button mBtnStopRecord = (Button) findViewById(R.id.stop_record);
         mTvDevice = (ListView) findViewById(R.id.lv_device);
         mInput = findViewById(R.id.edit_text);
 
         mBtnSendPhoto.setOnClickListener(this);
-        mBtnChoseFile.setOnClickListener(this);
         mBtnSearchServer.setOnClickListener(this);
         mBtnSendText.setOnClickListener(this);
         mBtnSendCamera.setOnClickListener(this);
         mBtnCancelConnect.setOnClickListener(this);
+        mBtnStartRecord.setOnClickListener(this);
+        mBtnStopRecord.setOnClickListener(this);
 
         // 创建wifi工具类
         wifiUtils = new WifiUtils(this);
         wifiUtils.setupService();
         initWifi();
-        //mInput = (EditText) findViewById(R.id.input);
+
         mPreview = (SurfaceView) findViewById(R.id.surfaceView);
         mSurfaceHolder = mPreview.getHolder();
         mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         mSurfaceHolder.addCallback(this);
-        //视频录制
 
-        captureButton = (Button) findViewById(R.id.btn_capture);
-        captureButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!isRecording) {
-                            startRecord();
-                        } else {
-                            stopRecord();
-                        }
-                    }
-                }
-        );
+        //获取到可持久化的surface用于视频的录制
+        mRecorderSurface = MediaCodec.createPersistentInputSurface();
     }
 
+    //设置开始录制和结束录制的方法
     void startRecord() {
-        if (mediaRecorder == null) {
-            prepareVideoRecorder();
+        if(isRecording){
+            return;
         }
-        mediaRecorder.start();
-        captureButton.setText("Stop");
         isRecording = true;
+        mediaRecorder.start();
+        Toast.makeText(SendCameraActivity.this,"开始录制",Toast.LENGTH_SHORT).show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     void stopRecord() {
-        mediaRecorder.stop();
+        if(!isRecording){
+            return;
+        }
         releaseMediaRecorder();
-        mCamera.lock();
 
-        captureButton.setText("Capture");
+        setUpMediaRecorder();
         isRecording = false;
+        Toast.makeText(SendCameraActivity.this,"停止录制",Toast.LENGTH_SHORT).show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_chosefile:
-                //chooseFile();
-                wifiUtils.disconnect();
-                break;
             case R.id.btn_searchserver:
                 sendType = 0;
                 wifiUtils.disconnect();
@@ -190,52 +223,61 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                 if (mWifiP2pInfo == null) {
                     Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
                 }
-                sendType = 2;
                 sendPhoto();
-
                 break;
             case R.id.btn_sendtext:
                 if (mWifiP2pInfo == null) {
                     Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
                 }
-                sendType = 1;
                 sendText();
                 break;
             case R.id.btn_sendcamera:
                 if (mWifiP2pInfo == null) {
                     Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
                 }
-                sendType = 3;
-                sendVideo();
-
+                mark = true;
+                //mediaRecorder.start();
                 break;
-            case R.id.btn_cancelconnect:
-                sendType = 0;
-                cancelConnect();
-            default:
 
+            case R.id.btn_cancelconnect:
+                cancelConnect();
+                break;
+
+            case R.id.start_record:
+                startRecord();
+                break;
+
+            case R.id.stop_record:
+                stopRecord();
+                break;
+            default:
                 break;
         }
     }
 
+    private void sendPhoto() {
+        takePicture();
+    }
+
     private void initWifi() {
         wifiUtils.setOnDataReceivedListener(new WifiUtils.OnDataReceivedListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             public void onDataReceived(byte[] data, String message) {
                 if (message.equals("text") && data.length != 0) {
                     String text = new String(data);
                     if (text.equals(Constant.SENDCAMERA)) {
-                        sendVideo();
+                        //设置mark为true，开始传输视频流
+                        mark = true;
                     } else if (text.equals(Constant.SENDIMAGE)) {
                         sendPhoto();
                     } else if (text.equals(Constant.DISCONNECT)) {
                         cancelConnect();
+                    }else if(text.equals(Constant.STARTRECORD)){
+                        startRecord();
+                    }else if(text.equals(Constant.STOPRECORD)){
+                        stopRecord();
                     }
                     Toast.makeText(SendCameraActivity.this, text, Toast.LENGTH_SHORT).show();
-                } else if (message.equals("photo") && data.length != 0) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    //photoView.setImageBitmap(bitmap);
-                } else if (message.equals("video") && data.length != 0) {
-                    //cameraView.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
                 }
             }
         });
@@ -293,7 +335,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
             @Override
             public void onSuccess() {
                 // WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION 广播，此时就可以调用 requestPeers 方法获取设备列表信息
-                Toast.makeText(SendCameraActivity.this,"取消成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SendCameraActivity.this, "取消成功", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "取消成功");
             }
 
@@ -319,48 +361,6 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
             // 校验数据格式
             Toast.makeText(this, "输入信息不能为空", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    //发送图片
-    public void sendPhoto() {
-        if (!isConnected) {
-            Toast.makeText(this, "请连接设备", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        mark = false;
-        mCamera.takePicture(null, null, new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] bytes, Camera camera) {
-                wifiUtils.send(bytes, "photo");
-                mCamera.startPreview();
-            }
-        });
-
-    }
-
-    //发送视频 其实也是发送一张一张的图片
-    public void sendVideo() {
-        if (!isConnected) {
-            Toast.makeText(this, "请连接设备", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        mark = true;
-
-        mCamera.setPreviewCallback(new Camera.PreviewCallback() {
-            @Override
-            public void onPreviewFrame(byte[] data, Camera camera) {
-                count++;
-                Camera.Size size = camera.getParameters().getPreviewSize();
-                final YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                image.compressToJpeg(new Rect(0, 0, mWidth, mHeight), 100, stream);
-                byte[] imageBytes = stream.toByteArray();
-                if (count % 2 == 0 && mark && isConnected) {
-                    Log.d(TAG, "发送数据");
-                    wifiUtils.send(imageBytes, "video");
-                }
-            }
-        });
     }
 
     /**
@@ -422,6 +422,207 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
 
 
         }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void openCamera() {
+        HandlerThread handlerThread = new HandlerThread("Camera2");
+        handlerThread.start();
+        childHandler = new Handler(handlerThread.getLooper());
+        mainHandler = new Handler(getMainLooper());
+
+        if (isOpened) {
+            return;
+        }
+
+        isOpened = true;
+        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
+            String cameraId = manager.getCameraIdList()[0];//这个可能会有很多个，但是通常都是两个，第一个是后置，第二个是前置；
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            manager.openCamera(cameraId, new CameraDevice.StateCallback() {
+                @Override
+                public void onOpened(CameraDevice camera) {
+                    Log.i(TAG, "onOpened");
+                    mCameraDevice = camera;
+                    createCameraPreview(camera);
+                }
+
+                @Override
+                public void onDisconnected(CameraDevice camera) {
+                    Log.i(TAG, "onDisconnected");
+                    camera.close();
+                }
+
+                @SuppressLint("MissingPermission")
+                @Override
+                public void onError(CameraDevice camera, int error) {
+                    Log.i(TAG, "onError -> " + error);
+                    camera.close();
+                }
+            }, mainHandler);//这个指定其后台运行，如果直接UI线程也可以，直接填null；
+            Log.i(TAG, "open Camera " + cameraId);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressLint("NewApi")
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    protected void createCameraPreview(final CameraDevice cameraDevice) {
+        try {
+            if (null == cameraDevice) {
+                Log.i(TAG, "updatePreview error, return");
+                return;
+            }
+            setUpImageReader();
+            setUpMediaRecorder();
+            final CaptureRequest.Builder captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+
+            Surface imageSurface = imageReader.getSurface();
+            captureRequestBuilder.addTarget(mSurfaceHolder.getSurface());
+            captureRequestBuilder.addTarget(mRecorderSurface);
+            captureRequestBuilder.addTarget(imageSurface);
+            //captureRequestBuilder.addTarget(mShowHolder.getSurface());
+            List<Surface> surfaceList = Arrays.asList(mSurfaceHolder.getSurface(), /*mShowHolder.getSurface(),*/ imageSurface, mRecorderSurface);
+            cameraDevice.createCaptureSession(surfaceList, new CameraCaptureSession.StateCallback() {
+                //配置要接受图像的surface
+                @Override
+                public void onConfigured(CameraCaptureSession cameraCaptureSession) {
+                    captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+                    mCameraCaptureSession = cameraCaptureSession;
+                    try {
+                        cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), null, childHandler);//成功配置后，便开始进行相机图像的监听
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onConfigureFailed(CameraCaptureSession cameraCaptureSession) {
+                    Toast.makeText(SendCameraActivity.this, "配置出错", Toast.LENGTH_SHORT).show();
+                }
+            }, childHandler);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setUpMediaRecorder() {
+
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+        mediaRecorder.setProfile(getCamcorderProfile());
+        //mediaRecorder.setInputSurface(mSurfaceHolder.getSurface());
+        //mediaRecorder.setOutputFile(new File(getExternalCacheDir(), System.currentTimeMillis() + ".mp4").getAbsolutePath());
+        mediaRecorder.setOutputFile(getOutputMediaFile(MEDIA_TYPE_VIDEO));
+        //mediaRecorder.setPreviewDisplay(mShowHolder.getSurface());
+        mediaRecorder.setInputSurface(mRecorderSurface);
+
+        try {
+            mediaRecorder.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void takePicture() {
+        if (mCameraDevice == null) return;
+        // 创建拍照需要的CaptureRequest.Builder
+        //mark = false;
+        isPicture = true;
+        final CaptureRequest.Builder captureRequestBuilder;
+        try {
+            captureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            // 将imageReader的surface作为CaptureRequest.Builder的目标
+            captureRequestBuilder.addTarget(imageReader.getSurface());
+            // 自动对焦
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            // 自动曝光
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+            // 获取手机方向
+            int rotation = getWindowManager().getDefaultDisplay().getRotation();
+            // 根据设备方向计算设置照片的方向
+            captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
+            //拍照
+            CaptureRequest mCaptureRequest = captureRequestBuilder.build();
+            mCameraCaptureSession.capture(mCaptureRequest, null, childHandler);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private CamcorderProfile getCamcorderProfile() {
+        return CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+    }
+
+    private void setUpImageReader() {
+        imageReader = ImageReader.newInstance(800, 600, ImageFormat.JPEG, 10);
+        imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+            @Override
+            public void onImageAvailable(ImageReader reader) {
+                Image image = reader.acquireLatestImage();
+
+                if (image != null && isPicture) {
+                    System.out.println("发送图片");
+                    isPicture = false;
+                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                    byte[] bytes = new byte[buffer.capacity()];
+                    buffer.get(bytes);
+                    Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+                    wifiUtils.send(compressImage(bitmapImage, quality), "photo");
+
+                    bitmapImage.recycle();
+                    bitmapImage = null;
+                    image.close();
+                    return;
+                }
+
+                if (image != null && mark) {
+                    System.out.println("有图像");
+                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                    byte[] bytes = new byte[buffer.capacity()];
+                    buffer.get(bytes);
+                    Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+
+                    wifiUtils.send(compressImage(bitmapImage, quality), "video");
+                }
+                if (image != null) {
+                    image.close();
+                }
+                Log.i(TAG, "onImageAvailable");
+            }
+        }, childHandler);
+    }
+
+    public static byte[] GetByteImage(Image image) {
+        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[buffer.capacity()];
+        buffer.get(bytes);
+        return bytes;
+        //Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+    }
+
+    public byte[] compressImage(Bitmap image, int quality) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+        //int options = 100;
+        /*while (outputStream.toByteArray().length / 1024 > imageSize) {
+            outputStream.reset();
+            image.compress(Bitmap.CompressFormat.JPEG, options, outputStream);
+            options -= 10;
+        }*/
+        return outputStream.toByteArray();
+//        ByteArrayInputStream isBm = new ByteArrayInputStream(outputStream.toByteArray());
+//        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
+//        return bitmap;
     }
 
 
@@ -488,40 +689,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        //prepareVideoRecorder();
-        try {
-            mCamera = Camera.open();
-            Camera.Parameters mPara = mCamera.getParameters();
-            List<Camera.Size> pictureSizes = mCamera.getParameters().getSupportedPictureSizes();
-            List<Camera.Size> previewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-
-            int previewSizeIndex = -1;
-            Camera.Size psize;
-            int height_sm = 999999;
-            int width_sm = 999999;
-            //获取设备最小分辨率图片，图片越清晰，传输越卡
-            for (int i = 0; i < previewSizes.size(); i++) {
-                psize = previewSizes.get(i);
-                if (psize.height <= height_sm && psize.width <= width_sm) {
-                    previewSizeIndex = i;
-                    height_sm = psize.height;
-                    width_sm = psize.width;
-                }
-            }
-
-            if (previewSizeIndex != -1) {
-                mWidth = previewSizes.get(previewSizeIndex).width;
-                mHeight = previewSizes.get(previewSizeIndex).height;
-                mPara.setPreviewSize(mWidth, mHeight);
-            }
-            mCamera.setParameters(mPara);
-            mCamera.setPreviewDisplay(mSurfaceHolder);
-            mCamera.startPreview();
-
-            size = mCamera.getParameters().getPreviewSize();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        openCamera();
     }
 
     @Override
@@ -553,92 +721,25 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
         });
     }
 
-    private boolean prepareVideoRecorder() {
-        //getCameraInstance();
-        //mCamera = Camera.open();
-        //Camera open = Camera.open();
-
-        // Step 1: Unlock and set camera to MediaRecorder
-        //open.unlock();
-        //mCamera.stopPreview();
-        releaseCamera();
-        mCamera = Camera.open();
-        mCamera.unlock();
-        mediaRecorder = new MediaRecorder();
-
-        //mediaRecorder.setCamera(mCamera);
-
-        mediaRecorder.setOnErrorListener(new MediaRecorder.OnErrorListener() {
-
-            @Override
-            public void onError(MediaRecorder mr, int what, int extra) {
-                Log.i(TAG, "Error");
-            }
-        });
-        //设置音频源，视频源
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-
-        //mediaRecorder.setAudioSamplingRate(8000);
-        // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
-        mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
-        //mediaRecorder.setVideoSize(1920, 1080);
-        // Step 4: Set output file
-        mediaRecorder.setOutputFile(getOutputMediaFile(MEDIA_TYPE_VIDEO).toString());
-        //Camera.Parameters parameters = mCamera.getParameters();
-        //parameters.setPreviewSize(mWidth, mHeight);
-        //mCamera.setParameters(parameters);
-        // Step 5: Set the preview output
-        mediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
-
-//        // Step 3: Set output format and encoding (for versions prior to API Level 8)
-//        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-//        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-//        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
-
-        // Step 6: Prepare configured MediaRecorder
-        try {
-            mediaRecorder.prepare();
-        } catch (IllegalStateException e) {
-            Log.d(TAG, "IllegalStateException preparing MediaRecorder: " + e.getMessage());
-            releaseMediaRecorder();
-            return false;
-        } catch (IOException e) {
-            Log.d(TAG, "IOException preparing MediaRecorder: " + e.getMessage());
-            releaseMediaRecorder();
-            return false;
-        }
-        return true;
-    }
-
     private void releaseMediaRecorder() {
         if (mediaRecorder != null) {
             mediaRecorder.reset();   // clear recorder configuration
             mediaRecorder.release(); // release the recorder object
             mediaRecorder = null;
-            mCamera.lock();           // lock camera for later use
         }
     }
 
-    private void releaseCamera() {
-        if (mCamera != null) {
-            mCamera.release();        // release the camera for other applications
-            mCamera = null;
-        }
-    }
 
     @Override
     protected void onPause() {
         super.onPause();
         releaseMediaRecorder();       // if you are using MediaRecorder, release it first
-        releaseCamera();              // release the camera immediately on pause event
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         releaseMediaRecorder();       // if you are using MediaRecorder, release it first
-        releaseCamera();              // release the camera immediately on pause event
     }
 
     /**

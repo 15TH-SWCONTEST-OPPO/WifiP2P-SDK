@@ -15,4 +15,8 @@ public class Constant {
     public final static String SENDIMAGE = "SENDIMAGE";
 
     public final static String DISCONNECT = "DICONNNECT";
+
+    public final static String STARTRECORD = "STARTRECORD";
+
+    public final static String STOPRECORD = "STOPRECORD";
 }
