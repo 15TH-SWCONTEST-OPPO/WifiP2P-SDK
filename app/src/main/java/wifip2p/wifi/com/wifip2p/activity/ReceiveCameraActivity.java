@@ -7,15 +7,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import java.nio.charset.StandardCharsets;
 
 import wifip2p.wifi.com.wifip2p.Constant;
 import wifip2p.wifi.com.wifip2p.ProgressDialog;

@@ -1,9 +1,6 @@
 package wifip2p.wifi.com.wifip2p.activity;
 
 import android.content.Intent;
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
@@ -11,10 +8,9 @@ import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,19 +19,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import wifip2p.wifi.com.wifip2p.Constant;
 import wifip2p.wifi.com.wifip2p.FileBean;
 import wifip2p.wifi.com.wifip2p.R;
-import wifip2p.wifi.com.wifip2p.TransBean;
-import wifip2p.wifi.com.wifip2p.socket.CameraSocket;
-import wifip2p.wifi.com.wifip2p.socket.ReceiveSocket;
-import wifip2p.wifi.com.wifip2p.socket.SendSocket;
 import wifip2p.wifi.com.wifip2p.utils.FileUtils;
 import wifip2p.wifi.com.wifip2p.utils.Md5Util;
 
