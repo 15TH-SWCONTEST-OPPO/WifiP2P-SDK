@@ -9,6 +9,7 @@ public class Constant {
     public final static String FILE = "file";
 
     public static final int PORT = 15672;
+    public static final int NETTYPORT = 35672;
 
     public final static String SENDCAMERA = "SENDCAMERA";
 

@@ -45,9 +45,9 @@ public class WifiUtils {
     // Wifi状态监听器
     private WifiStateListener mWifiStateListener = null;
     // 事件监听器
-    private OnDataReceivedListener mDataReceivedListener = null;
+    private WifiUtils.OnDataReceivedListener mDataReceivedListener = null;
     // wifi连接事件监听器
-    private WifiConnectionListener mWifiConnectionListener = null;
+    private WifiUtils.WifiConnectionListener mWifiConnectionListener = null;
 
     private Context mContext;
 
@@ -98,7 +98,7 @@ public class WifiUtils {
     // 自定义数据接收监听器
     public interface OnDataReceivedListener {
         // 当接收到数据的时候
-        public void onDataReceived(byte[] data, String message);
+        public void onDataReceived(byte[] readBuf, String str);
     }
 
     // Wifi连接监听器
