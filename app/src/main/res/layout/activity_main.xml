@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context="wifip2p.wifi.com.wifip2p.activity.MainActivity">
+    tools:context="com.myapp.activity.MainActivity">
 
     <Button
         android:layout_width="match_parent"

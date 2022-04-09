@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="wifip2p.wifi.com.wifip2p">
+    package="com.myapp">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
@@ -36,7 +36,7 @@
 <!--            </intent-filter>-->
 <!--        </activity>-->
         <activity
-            android:name=".activity.MainActivity"
+            android:name="com.myapp.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,13 +45,13 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".Wifip2pService" />
+        <service android:name="com.myapp.Wifip2pService" />
 
-        <activity android:name=".activity.SendCameraActivity"></activity>
-        <activity android:name=".activity.ReceiveCameraActivity"></activity>
-        <activity android:name=".activity.SendFileActivity"></activity>
-        <activity android:name=".activity.ReceiveFileActivity"></activity>
-        <activity android:name=".activity.BaseActivity"></activity>
+        <activity android:name="com.myapp.activity.SendCameraActivity"></activity>
+        <activity android:name="com.myapp.activity.ReceiveCameraActivity"></activity>
+        <activity android:name="com.myapp.activity.SendFileActivity"></activity>
+        <activity android:name="com.myapp.activity.ReceiveFileActivity"></activity>
+        <activity android:name="com.myapp.activity.BaseActivity"></activity>
     </application>
 
 </manifest>
