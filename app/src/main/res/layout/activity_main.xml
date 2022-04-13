@@ -7,18 +7,19 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
+    android:background="@mipmap/back"
     tools:context="com.myapp.activity.MainActivity">
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="发送相机"
+        android:text="多机位客户端"
         android:onClick="sendCamera"/>
     <Button
         android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="接收相机"
+        android:text="多机位服务端"
         android:onClick="receiveCamera"/>
 
     <Button

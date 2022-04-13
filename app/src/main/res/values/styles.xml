@@ -17,4 +17,12 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <!-- 隐藏标题栏 -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
 </resources>

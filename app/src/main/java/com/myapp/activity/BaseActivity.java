@@ -2,6 +2,7 @@ package com.myapp.activity;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -24,12 +25,17 @@ public class BaseActivity extends AppCompatActivity implements Wifip2pActionList
     public WifiP2pInfo mWifiP2pInfo;
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //注册WifiP2pManager
         mWifiP2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
 
-        mChannel = mWifiP2pManager.initialize(this, getMainLooper(), this);
+        mChannel = mWifiP2pManager.initialize(BaseActivity.this, getMainLooper(), BaseActivity.this);
 
         //注册广播
         mWifip2pReceiver = new Wifip2pReceiver(mWifiP2pManager, mChannel, this);

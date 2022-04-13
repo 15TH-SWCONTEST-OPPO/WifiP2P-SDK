@@ -9,7 +9,8 @@ public class Constant {
     public final static String FILE = "file";
 
     public static final int PORT = 15672;
-    public static final int NETTYPORT = 35672;
+
+    public static final int NETTYPORT = 45672;
 
     public final static String SENDCAMERA = "SENDCAMERA";
 
@@ -20,4 +21,10 @@ public class Constant {
     public final static String STARTRECORD = "STARTRECORD";
 
     public final static String STOPRECORD = "STOPRECORD";
+
+    public final static String HIGHQUALITY = "HIGHQUALITY";
+
+    public final static String MEDIUMQUALITY = "MEDIUMQUALITY";
+
+    public final static String LOWQUALITY = "LOWQUALITY";
 }

@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -168,5 +169,10 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
         if (mIntent != null) {
             stopService(mIntent);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 }

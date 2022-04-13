@@ -3,6 +3,7 @@ package com.myapp.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
@@ -271,4 +272,8 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         });
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 }

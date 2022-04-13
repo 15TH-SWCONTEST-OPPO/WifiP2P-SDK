@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.myapp.activity.SendFileActivity">
+
+    <!--标题栏样式一-->
+    <!--        -->
+    <!--        app:subtitleTextColor="@android:color/black"
+    android:background="@mipmap/toolbar"
+    app:title="多机位拍摄"-->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@android:color/black"
+        app:title="发现属于你的美"
+        android:textAlignment="center"
+
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+
+<!--    <Button-->
+<!--        android:id="@+id/btn_pop"-->
+<!--        android:text="弹出 PopupWindow"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content" />-->
+
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <SurfaceView
+                android:id="@+id/surfaceView"
+                android:layout_width="fill_parent"
+                android:layout_height="500dp" />
+
+<!--            <androidx.appcompat.widget.Toolbar-->
+<!--                android:id="@+id/main_menu_ebook"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                app:navigationIcon="@mipmap/navicate" />-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/bookContent"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content" />-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/black">
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/new_btn_record"
+                    android:src="@mipmap/start_record"/>
+<!--                <Button-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:id="@+id/new_btn_record"-->
+<!--                    android:background="@drawable/btn_record"/>-->
+            </LinearLayout>
+        </LinearLayout>
+
+
+<!--        app:headerLayout="@layout/header"-->
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view"
+            android:layout_width="230dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+
+            app:menu="@menu/menu_send_navigation" />
+
+
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+
+
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_searchserver"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:text="建立配对连接" />
+
+            <Button
+                android:id="@+id/btn_cancelconnect"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:text="取消配对连接" />
+
+            <Button
+                android:id="@+id/start_record"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:text="开始录制视频" />
+
+            <Button
+                android:id="@+id/start_netty"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:text="开启netty服务" />
+
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_sendphoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="发送图片" />
+
+            <Button
+                android:id="@+id/btn_sendcamera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="发送摄像头" />
+
+            <Button
+                android:id="@+id/btn_sendtext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="发送文本" />
+
+            <Button
+                android:id="@+id/stop_record"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="停止录制视频" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="选择需要连接的设备："
+        android:textSize="14sp" />
+
+    <ListView
+        android:id="@+id/lv_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" />
+
+
+
+</LinearLayout><!--    -->

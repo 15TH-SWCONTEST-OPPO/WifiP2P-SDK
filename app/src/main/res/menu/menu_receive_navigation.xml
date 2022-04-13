@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/create_group"
+        android:title="创建群组"
+        app:actionLayout="@layout/bage_hint" />
+
+    <item
+        android:id="@+id/remove_group"
+        android:title="移除群组" />
+
+    <item
+        android:id="@+id/start_server"
+        android:title="开启服务端" />
+
+    <item
+        android:id="@+id/rdisconnect"
+        android:title="断开连接"
+        app:actionLayout="@layout/bage_hint" />
+
+    <item
+        android:id="@+id/rsend_photo"
+        android:title="发送图片" />
+
+    <item
+        android:id="@+id/rsend_camera"
+        android:title="发送摄像头" />
+
+    <item
+        android:id="@+id/receive_start_record"
+        android:title="开始录制" />
+
+    <item
+        android:id="@+id/receive_stop_record"
+        android:title="结束录制" />
+
+    <item
+        android:id="@+id/rquality_group"
+        android:title="传输质量">
+
+        <menu
+            android:id="@+id/rquality_menu"
+            app:actionLayout="@layout/bage_hint">
+
+            <item
+                android:id="@+id/rquality_high"
+                android:title="高" />
+
+            <item
+                android:id="@+id/rquality_mid"
+
+                android:title="中" />
+            <item
+                android:id="@+id/rquality_low"
+
+                android:title="低" />
+
+        </menu>
+    </item>
+
+    <!--    <group-->
+    <!--        android:id="@+id/quality_group">-->
+    <!--        <item-->
+    <!--            android:id="@+id/quality_high"-->
+    <!--            android:title="高" />-->
+
+    <!--        <item-->
+    <!--            android:id="@+id/quality_mid"-->
+
+    <!--            android:title="中" />-->
+    <!--        <item-->
+    <!--            android:id="@+id/quality_low"-->
+
+    <!--            android:title="低" />-->
+    <!--    </group>-->
+
+    <!--    <group-->
+    <!--        android:id="@+id/group2"-->
+    <!--        android:checkableBehavior="single">-->
+    <!--        <item-->
+    <!--            android:id="@+id/single_3"-->
+
+    <!--            android:title="github" />-->
+
+    <!--        <item-->
+    <!--            android:id="@+id/single_4"-->
+
+    <!--            android:title="wechat" />-->
+    <!--    </group>-->
+
+    <!--    <item android:title="子菜单">-->
+    <!--        <menu>-->
+    <!--            <item-->
+    <!--                android:id="@+id/item_2"-->
+
+    <!--                android:title="淘宝" />-->
+
+    <!--            <item-->
+    <!--                android:id="@+id/item_1"-->
+
+    <!--                android:title="百度" />-->
+
+    <!--            <item-->
+    <!--                android:id="@+id/item_3"-->
+
+    <!--                android:title="腾讯" />-->
+    <!--        </menu>-->
+    <!--    </item>-->
+</menu>

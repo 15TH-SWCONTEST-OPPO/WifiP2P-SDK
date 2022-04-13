@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.myapp.activity.ReceiveCameraActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_receive"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@android:color/black"
+        android:textAlignment="center"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:title="发现属于你的美" />
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout_receive"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text="相机预览" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/ll_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                </LinearLayout>
+            </HorizontalScrollView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text="图片预览"/>
+
+
+            <ImageView
+                android:id="@+id/camera_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+
+        </LinearLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view_receive"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+
+            app:menu="@menu/menu_receive_navigation" />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+</LinearLayout>

@@ -5,9 +5,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -32,23 +37,38 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -61,6 +81,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import com.google.android.material.navigation.NavigationView;
 import com.myapp.Constant;
 import com.myapp.FileBean;
 import com.myapp.R;
@@ -97,7 +118,8 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     private int connectTime = 0;
     private Integer sendType = 0;
 
-    private Boolean isConnected = false;
+    private Boolean isNettyConnected = false;
+    private Boolean isWifiConnected = false;
     private MediaRecorder mediaRecorder;
 
     //camera的相关字段
@@ -108,7 +130,9 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     private CameraDevice mCameraDevice;
 
     //动态设置图片的质量
-    private int quality = 10;
+    private int quality = 50;
+
+    private int oriention = 0;
 
     private CameraCaptureSession mCameraCaptureSession;
 
@@ -133,12 +157,16 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
 
     private NettyUtils nettyUtils;
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private DrawerLayout drawer;
+
+    private Toolbar toolbar;
+
+    private ImageButton newBtn;
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_send_camera);
-
+        setContentView(R.layout.activity_send_camera_2);
         Button mBtnSearchServer = (Button) findViewById(R.id.btn_searchserver);
         Button mBtnSendText = (Button) findViewById(R.id.btn_sendtext);
         Button mBtnSendPhoto = (Button) findViewById(R.id.btn_sendphoto);
@@ -170,7 +198,172 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
 
         //获取到可持久化的surface用于视频的录制
         mRecorderSurface = MediaCodec.createPersistentInputSurface();
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //处理抽屉
+        NavigationView navigationview = (NavigationView) findViewById(R.id.navigation_view);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, 0, 0);
+        drawer.setDrawerListener(toggle);//初始化状态
+        toggle.syncState();
+        newBtn = findViewById(R.id.new_btn_record);
+
+        newBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isRecording) {
+                    startRecord();
+                } else {
+                    stopRecord();
+                }
+
+            }
+        });
+
+//        Button btn_pop = (Button) findViewById(R.id.btn_pop);
+//        btn_pop.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                initPopWindow(v);
+//            }
+//        });
+
+        /*---------------------------添加头布局和尾布局-----------------------------*/
+        //获取xml头布局view
+        View headerView = navigationview.getHeaderView(0);
+
+        navigationview.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                return false;
+            }
+        });
+        ColorStateList csl = (ColorStateList) getResources().getColorStateList(R.color.nav_menu_text_color);
+        //设置item的条目颜色
+        navigationview.setItemTextColor(csl);
+        //去掉默认颜色显示原来颜色  设置为null显示本来图片的颜色
+        navigationview.setItemIconTintList(csl);
+
+
+        //设置条目点击监听
+        navigationview.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                //安卓
+                //Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
+
+                switch (menuItem.getItemId()) {
+                    case R.id.search_device:
+
+                        cancelConnect(false);
+                        mDialog = new AlertDialog.Builder(SendCameraActivity.this, R.style.Transparent).create();
+                        mDialog.show();
+                        mDialog.setCancelable(false);
+                        mDialog.setContentView(R.layout.loading_progressba);
+                        //搜索设备
+                        connectServer();
+                        break;
+                    case R.id.send_photo:
+
+                        if (!isWifiConnected) {
+                            Toast.makeText(SendCameraActivity.this, "当前未连接", Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                        sendPhoto();
+                        break;
+
+                    case R.id.send_camera:
+                        if (!isWifiConnected) {
+                            Toast.makeText(SendCameraActivity.this, "当前未连接", Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                        if (!isNettyConnected) {
+                            Toast.makeText(SendCameraActivity.this, "未连接服务", Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                        mark = true;
+                        break;
+
+                    case R.id.remove_wifi:
+                        cancelConnect(true);
+                        break;
+
+                    case R.id.connect:
+                        startNetty();
+                        break;
+                    case R.id.device_list:
+                        initPopWindow((View) toolbar);
+                    case R.id.quality_high:
+                        quality = 70;
+                    case R.id.quality_mid:
+                        quality = 45;
+                    case R.id.quality_low:
+                        quality = 25;
+                    default:
+                        break;
+                }
+
+                //设置哪个按钮被选中
+//                menuItem.setChecked(true);
+                //关闭侧边栏
+//                drawer.closeDrawers();
+                return false;
+            }
+        });
     }
+
+
+    private void initPopWindow(View v) {
+        drawer.closeDrawers();
+        View view = LayoutInflater.from(SendCameraActivity.this).inflate(R.layout.popwin_layout, null, false);
+        //1.构造一个PopupWindow，参数依次是加载的 View，宽高
+
+        final PopupWindow popWindow = new PopupWindow(view,
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        popWindow.setAnimationStyle(R.anim.anim_pop);  //设置加载动画
+
+        //这些为了点击非PopupWindow区域，PopupWindow会消失的，如果没有下面的
+        //代码的话，你会发现，当你把PopupWindow显示出来了，无论你按多少次后退键
+        //PopupWindow并不会关闭，而且退不出程序，加上下述代码可以解决这个问题
+
+        popWindow.setTouchable(true);
+        popWindow.setTouchInterceptor(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+                // 这里如果返回true的话，touch事件将被拦截
+                // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
+            }
+        });
+
+        popWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));    //要为popWindow设置一个背景才有效
+
+        //设置 popupWindow 显示的位置，参数依次是参照 View，x轴的偏移量，y轴的偏移量
+        popWindow.showAsDropDown(v, 50, 0);
+
+//        Button btn_web = (Button) view.findViewById(R.id.test1);
+        mTvDevice = view.findViewById(R.id.lv_device);
+        ArrayAdapter<String> adapter = new ArrayAdapter(view.getContext(), android.R.layout.simple_list_item_1, mListDeviceName);
+        mTvDevice.setAdapter(adapter);
+        mTvDevice.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                WifiP2pDevice wifiP2pDevice = mListDevice.get(i);
+                mDialog = new AlertDialog.Builder(SendCameraActivity.this, R.style.Transparent).create();
+                mDialog.show();
+                mDialog.setCancelable(false);
+                mDialog.setContentView(R.layout.loading_connect);
+                connect(wifiP2pDevice);
+            }
+        });
+        //设置 popupWindow 里的按钮的事件
+    }
+
+
 
     //设置开始录制和结束录制的方法
     void startRecord() {
@@ -178,6 +371,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
             return;
         }
         isRecording = true;
+        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.stop_record));
         mediaRecorder.start();
         Toast.makeText(SendCameraActivity.this, "开始录制", Toast.LENGTH_SHORT).show();
     }
@@ -187,11 +381,13 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
         if (!isRecording) {
             return;
         }
+        mediaRecorder.stop();
         releaseMediaRecorder();
 
         setUpMediaRecorder();
         isRecording = false;
         Toast.makeText(SendCameraActivity.this, "停止录制", Toast.LENGTH_SHORT).show();
+        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.start_record));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -200,7 +396,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_searchserver:
-                sendType = 0;
+
                 cancelConnect(false);
                 mDialog = new AlertDialog.Builder(this, R.style.Transparent).create();
                 mDialog.show();
@@ -210,20 +406,28 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                 connectServer();
                 break;
             case R.id.btn_sendphoto:
-                if (mWifiP2pInfo == null) {
+
+                if (!isWifiConnected) {
                     Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 sendPhoto();
                 break;
             case R.id.btn_sendtext:
-                if (mWifiP2pInfo == null) {
+                if (!isWifiConnected) {
                     Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 sendText();
                 break;
             case R.id.btn_sendcamera:
-                if (mWifiP2pInfo == null) {
+                if (!isWifiConnected) {
                     Toast.makeText(this, "当前未连接", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!isNettyConnected) {
+                    Toast.makeText(SendCameraActivity.this, "未连接服务", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 mark = true;
                 break;
@@ -248,22 +452,30 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     }
 
     private void startNetty() {
+        if (!isWifiConnected) {
+            Toast.makeText(SendCameraActivity.this, "Wifi未连接", Toast.LENGTH_SHORT).show();
+        }
         try {
-            if(mWifiP2pInfo!=null){
+            if (mWifiP2pInfo != null) {
                 nettyUtils.connect2Server(mWifiP2pInfo.groupOwnerAddress.getHostAddress());
-                isConnected = true;
-            }else{
-                isConnected = false;
+                isNettyConnected = true;
+            } else {
+                isNettyConnected = false;
                 System.out.println("连接为空");
             }
 
         } catch (Exception e) {
-            isConnected = false;
+            isNettyConnected = false;
             System.err.println(e);
         }
     }
 
     private void sendPhoto() {
+        if (!isNettyConnected) {
+            Toast.makeText(SendCameraActivity.this, "未连接服务", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(SendCameraActivity.this, "发送", Toast.LENGTH_SHORT).show();
         takePicture();
     }
 
@@ -275,18 +487,26 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                 if (message.equals("text") && data.length != 0) {
                     String text = new String(data);
                     Toast.makeText(SendCameraActivity.this, text, Toast.LENGTH_SHORT).show();
-                    if (text.equals(Constant.SENDIMAGE)){
+                    if (text.equals(Constant.SENDIMAGE)) {
                         sendPhoto();
-                    } else if (text.equals(Constant.STARTRECORD)){
+                    } else if (text.equals(Constant.STARTRECORD)) {
                         startRecord();
-                    }else if(text.equals(Constant.STOPRECORD)){
+                    } else if (text.equals(Constant.STOPRECORD)) {
                         stopRecord();
-                    }else if(text.equals(Constant.SENDCAMERA)){
+                    } else if (text.equals(Constant.SENDCAMERA)) {
                         mark = true;
-                    }else if(text.equals(Constant.DISCONNECT)){
-                        cancelConnect(false);
+                    } else if (text.equals(Constant.DISCONNECT)) {
+                        mark = false;
+                        isPicture = false;
+                        stopRecord();
+                        nettyUtils.releaseClient();
+                    }else if(text.equals(Constant.HIGHQUALITY)){
+                        quality = 70;
+                    }else if(text.equals(Constant.MEDIUMQUALITY)){
+                        quality = 45;
+                    }else if(text.equals(Constant.LOWQUALITY)){
+                        quality = 25;
                     }
-
                 }
             }
         });
@@ -303,7 +523,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                 mDialog.dismiss();
 
                 Toast.makeText(SendCameraActivity.this, "连接出错", Toast.LENGTH_SHORT).show();
-                isConnected = false;
+                isWifiConnected = false;
             }
             if (msg.what == 2) {
 
@@ -313,7 +533,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
 
                 mDialog.dismiss();
                 Toast.makeText(SendCameraActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
-                isConnected = true;
+                isWifiConnected = true;
             }
         }
     };
@@ -321,11 +541,11 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
 
     private void cancelConnect(boolean isShow) {
         mark = false;
-        isConnected = false;
+        isWifiConnected = false;
         mWifiP2pManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                if(isShow){
+                if (isShow) {
                     Toast.makeText(SendCameraActivity.this, "取消成功", Toast.LENGTH_SHORT).show();
                 }
                 Log.e(TAG, "取消成功");
@@ -340,7 +560,11 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
 
     //发送文本信息
     public void sendText() {
-        nettyUtils.sendData("你好".getBytes(),"text");
+        if (!isNettyConnected) {
+            Toast.makeText(SendCameraActivity.this, "未连接服务", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        nettyUtils.sendData("你好".getBytes(), "text");
 //        if (!isConnected) {
 //            Toast.makeText(this, "请连接设备", Toast.LENGTH_SHORT).show();
 //            return;
@@ -366,13 +590,33 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
             public void onSuccess() {
                 // WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION 广播，此时就可以调用 requestPeers 方法获取设备列表信息
                 Log.e(TAG, "搜索设备成功");
+                //initPopWindow(toolbar);
             }
 
             @Override
             public void onFailure(int reasonCode) {
+                //进度条消失
+                if (mDialog == null) {
+                    mDialog = new AlertDialog.Builder(SendCameraActivity.this, R.style.Transparent).create();
+                }
+                mDialog.dismiss();
+                Toast.makeText(SendCameraActivity.this,"搜索设备失败，请检查手机wifi设置",Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "搜索设备失败");
             }
         });
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+//        if(oriention==0){
+//            mPreview.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,500));
+//            oriention = 1;
+//        }else{
+//            mPreview.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,400));
+//            oriention = 0;
+//        }
+
     }
 
     /**
@@ -400,6 +644,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                             connect(wifiP2pDevice);
                         }
                     } else {
+                        isWifiConnected = true;
                         Toast.makeText(SendCameraActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -407,7 +652,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                 @Override
                 public void onFailure(int reason) {
                     Log.e(TAG, "连接失败");
-                    isConnected = false;
+                    isWifiConnected = false;
                     Toast.makeText(SendCameraActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -556,12 +801,11 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     }
 
     private void setUpImageReader() {
-        imageReader = ImageReader.newInstance(800, 600, ImageFormat.JPEG, 10);
+        imageReader = ImageReader.newInstance(400, 300, ImageFormat.JPEG, 10);
         imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader reader) {
                 Image image = reader.acquireLatestImage();
-
                 if (image != null && isPicture) {
                     System.out.println("发送图片");
                     isPicture = false;
@@ -569,11 +813,8 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                     byte[] bytes = new byte[buffer.capacity()];
                     buffer.get(bytes);
                     Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
-                    //wifiUtils.send(compressImage(bitmapImage, quality), "photo");
-
+                    nettyUtils.sendData(compressImage(bitmapImage, quality), "photo");
                     bitmapImage.recycle();
-                    bitmapImage = null;
-                    image.close();
                     return;
                 }
 
@@ -584,13 +825,11 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
                     buffer.get(bytes);
                     Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
 
-                    //wifiUtils.send(compressImage(bitmapImage, quality), "video");
                     nettyUtils.sendData(compressImage(bitmapImage, quality), "video");
                 }
                 if (image != null) {
                     image.close();
                 }
-                //Log.i(TAG, "onImageAvailable");
             }
         }, childHandler);
     }
@@ -604,15 +843,27 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
     }
 
     public byte[] compressImage(Bitmap image, int quality) {
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//
+//        Bitmap copy = image.copy(Bitmap.Config.RGB_565, true);
+//        Matrix matrix = new Matrix();
+//        matrix.setScale(0.5f, 0.5f);
+//        copy = Bitmap.createBitmap(copy, 0, 0, copy.getWidth(),
+//                copy.getHeight(), matrix, true);
+//
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.out.println("压缩前" + (double) image.getByteCount() / 1024.0 / 1024.0);
         image.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+
         //int options = 100;
         /*while (outputStream.toByteArray().length / 1024 > imageSize) {
             outputStream.reset();
             image.compress(Bitmap.CompressFormat.JPEG, options, outputStream);
             options -= 10;
         }*/
-        return outputStream.toByteArray();
+        byte[] bytes = outputStream.toByteArray();
+        System.out.println("压缩后" + (double) bytes.length / 1024.0 / 1024.0);
+        return bytes;
 //        ByteArrayInputStream isBm = new ByteArrayInputStream(outputStream.toByteArray());
 //        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
 //        return bitmap;
@@ -676,7 +927,7 @@ public class SendCameraActivity extends BaseActivity implements View.OnClickList
             mDialog = new AlertDialog.Builder(this, R.style.Transparent).create();
         }
         mDialog.dismiss();
-        showDeviceInfo();
+        //showDeviceInfo();
     }
 
 

@@ -82,6 +82,10 @@ public class NettyUtils {
         mNettyConnectionListener = listener;
     }
 
+    public void releaseClient(){
+        nettyClient.close();
+    }
+
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
