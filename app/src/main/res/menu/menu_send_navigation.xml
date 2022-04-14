@@ -18,13 +18,16 @@
 
     <item
         android:id="@+id/send_camera"
-
         android:title="发送摄像头"
         app:actionLayout="@layout/bage_hint" />
 
     <item
         android:id="@+id/send_photo"
         android:title="发送图片" />
+
+    <item
+        android:id="@+id/disconnect"
+        android:title="断开服务连接" />
 
     <item
         android:id="@+id/connect"

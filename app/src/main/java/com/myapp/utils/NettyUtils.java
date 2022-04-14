@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.myapp.Constant;
@@ -25,6 +26,7 @@ public class NettyUtils {
     private NettyConnectionListener mNettyConnectionListener = null;
 
 
+
     public void setUpService() {
         nettyServer = new NettyServer(Constant.NETTYPORT, mHandler);
     }
@@ -37,17 +39,17 @@ public class NettyUtils {
         nettyClient.run(host, Constant.NETTYPORT);
     }
 
-    public void startService() throws InterruptedException {
+    public void startService(Handler nettyHandler) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    nettyServer.run();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                nettyServer.run(nettyHandler);
             }
         }).start();
+    }
+
+    public void stopServer(){
+        nettyServer.stop();
     }
 
     public void sendData(byte[] bytes, String type) {

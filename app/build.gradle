@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
 //    compileSdk 26
-    compileSdkVersion 28
+    compileSdkVersion 30
 
     sourceSets {
         main {
@@ -11,7 +11,7 @@ android {
     }
     defaultConfig {
         applicationId "wifip2p.wifi.com.wifip2p"
-        minSdkVersion 16
+        minSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'

@@ -22,6 +22,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -45,10 +47,11 @@ import com.myapp.Constant;
 import com.myapp.ProgressDialog;
 import com.myapp.R;
 import com.myapp.Wifip2pCameraService;
+import com.myapp.utils.FilePathUtils;
 import com.myapp.utils.NettyState;
 import com.myapp.utils.NettyUtils;
 
-public class ReceiveCameraActivity extends BaseActivity implements View.OnClickListener {
+public class ReceiveCameraActivity extends BaseActivity {
 
     private static final String TAG = "ReceiveCameraActivity";
     private Wifip2pCameraService.MyBinder mBinder;
@@ -66,35 +69,17 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
 
     private String selectedName = "None";
 
-
     private DrawerLayout drawer;
 
     private Toolbar toolbar;
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receive_camera_drawer);
-        //setContentView(R.layout.activity_receive_camera_2);
-//        Button btnCreate = (Button) findViewById(R.id.btn_create);
-//        Button btnRemove = (Button) findViewById(R.id.btn_remove);
-//        Button sendCamera = findViewById(R.id.btn_rsend_camera);
-//        Button sendPhoto = findViewById(R.id.btn_rsend_image);
-//        Button disConnect = findViewById(R.id.btn_disconnect);
-//        Button startNetty = findViewById(R.id.rstart_netty);
-//        Button startRecord = findViewById(R.id.rstart_record);
-//        Button stopRecord = findViewById(R.id.rstop_record);
         imageViews = findViewById(R.id.ll_group);
-
-//        btnCreate.setOnClickListener(this);
-//        btnRemove.setOnClickListener(this);
-//        disConnect.setOnClickListener(this);
-//        sendCamera.setOnClickListener(this);
-//        sendPhoto.setOnClickListener(this);
-//        startRecord.setOnClickListener(this);
-//        stopRecord.setOnClickListener(this);
-//        startNetty.setOnClickListener(this);
 
         nettyUtils = new NettyUtils();
         nettyUtils.setUpService();
@@ -108,7 +93,7 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sendCommand(String command) {
-        if(!isServerStarted){
+        if (!isServerStarted) {
             Toast.makeText(this, "服务未开启", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -126,11 +111,11 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
             nettyUtils.sendCommand(selectedName, Constant.STARTRECORD.getBytes(), "text");
         } else if (command.equals(Constant.STOPRECORD)) {
             nettyUtils.sendCommand(selectedName, Constant.STOPRECORD.getBytes(), "text");
-        }else if (command.equals(Constant.HIGHQUALITY)) {
+        } else if (command.equals(Constant.HIGHQUALITY)) {
             nettyUtils.sendCommand(selectedName, Constant.HIGHQUALITY.getBytes(), "text");
-        }else if (command.equals(Constant.MEDIUMQUALITY)) {
+        } else if (command.equals(Constant.MEDIUMQUALITY)) {
             nettyUtils.sendCommand(selectedName, Constant.MEDIUMQUALITY.getBytes(), "text");
-        }else if (command.equals(Constant.LOWQUALITY)) {
+        } else if (command.equals(Constant.LOWQUALITY)) {
             nettyUtils.sendCommand(selectedName, Constant.LOWQUALITY.getBytes(), "text");
         } else {
             Toast.makeText(this, "无效指令", Toast.LENGTH_SHORT).show();
@@ -179,13 +164,14 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
 
                 switch (menuItem.getItemId()) {
                     case R.id.create_group:
+                        removeGroup(false);
                         createGroup();
                         break;
                     case R.id.remove_group:
-                        removeGroup();
+                        removeGroup(true);
                         break;
-                    case R.id.start_server:
-                        startNetty();
+                    case R.id.stop_server:
+                        stopNetty();
                         break;
                     case R.id.rsend_camera:
                         sendCommand(Constant.SENDCAMERA);
@@ -222,6 +208,13 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
         });
     }
 
+    private void stopNetty() {
+        if (!isServerStarted) {
+            Toast.makeText(ReceiveCameraActivity.this, "服务未开启", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        nettyUtils.stopServer();
+    }
 
 
     @Override
@@ -287,14 +280,16 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
                     Toast.makeText(ReceiveCameraActivity.this, text, Toast.LENGTH_SHORT).show();
                 } else if (message.equals("photo") && data.length != 0) {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    FilePathUtils.saveBitmap(bitmap);
                     photoView.setImageBitmap(bitmap);
-                    imageView.setImageBitmap(bitmap);
+                    //imageView.setImageBitmap(bitmap);
                 } else if (message.equals("video") && data.length != 0) {
                     Matrix matrix = new Matrix();
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    matrix.postScale(2.0F,2.0F);
+                    matrix.postScale(2.0F, 2.0F);
                     //matrix.setRotate(90, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
-                    Bitmap newBitmap=bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),matrix,false);
+                    Bitmap newBitmap = bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+
 //                    newBitmap.setWidth(400);
 //                    newBitmap.setHeight(300);
                     imageView.setLayoutParams(new LinearLayout.LayoutParams(800, 600));
@@ -304,51 +299,28 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
         });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_create:
-                createGroup();
-                break;
-            case R.id.btn_remove:
-                removeGroup();
-                break;
-            case R.id.btn_rsend_camera:
-                sendCommand(Constant.SENDCAMERA);
-                break;
-            case R.id.btn_rsend_image:
-                sendCommand(Constant.SENDIMAGE);
-                break;
-            case R.id.btn_disconnect:
-                sendCommand(Constant.DISCONNECT);
-                break;
-            case R.id.rstart_record:
-                sendCommand(Constant.STARTRECORD);
-                break;
-            case R.id.rstop_record:
-                sendCommand(Constant.STOPRECORD);
-                break;
-            case R.id.rstart_netty:
-                startNetty();
-                break;
-        }
-    }
-
     private void startNetty() {
-        if(!isGroupFormed){
+        if (!isGroupFormed) {
             Toast.makeText(ReceiveCameraActivity.this, "未创建群组", Toast.LENGTH_SHORT).show();
             return;
         }
-        try {
-            nettyUtils.startService();
-            isServerStarted = true;
-            Toast.makeText(ReceiveCameraActivity.this, "服务开启成功", Toast.LENGTH_SHORT).show();
-        } catch (InterruptedException e) {
-            isServerStarted = false;
-            Toast.makeText(ReceiveCameraActivity.this, "开启服务失败", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
+        @SuppressLint("HandlerLeak") final Handler nettyHandler = new Handler() {
+            @SuppressLint("HandlerLeak")
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                switch (msg.what) {
+                    case 0:
+                        isServerStarted = true;
+                        Toast.makeText(ReceiveCameraActivity.this, "服务开启成功", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        isServerStarted = false;
+                        Toast.makeText(ReceiveCameraActivity.this, "服务异常", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        };
+        nettyUtils.startService(nettyHandler);
     }
 
     /**
@@ -365,7 +337,8 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
             public void onSuccess() {
                 isGroupFormed = true;
                 Log.e(TAG, "创建群组成功");
-                Toast.makeText(ReceiveCameraActivity.this, "创建群组成功", Toast.LENGTH_SHORT).show();
+                ///Toast.makeText(ReceiveCameraActivity.this, "创建群组成功", Toast.LENGTH_SHORT).show();
+                startNetty();
             }
 
             @Override
@@ -379,19 +352,27 @@ public class ReceiveCameraActivity extends BaseActivity implements View.OnClickL
     /**
      * 移除组群
      */
-    public void removeGroup() {
+    public void removeGroup(boolean isShow) {
         mWifiP2pManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
                 isGroupFormed = false;
                 Log.e(TAG, "移除组群成功");
-                Toast.makeText(ReceiveCameraActivity.this, "移除组群成功", Toast.LENGTH_SHORT).show();
+                if (isShow) {
+                    if(isServerStarted){
+                        nettyUtils.stopServer();
+                        isServerStarted = false;
+                    }
+                    Toast.makeText(ReceiveCameraActivity.this, "移除组群成功", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onFailure(int reason) {
                 Log.e(TAG, "移除组群失败");
-                Toast.makeText(ReceiveCameraActivity.this, "移除组群失败,请创建组群重试", Toast.LENGTH_SHORT).show();
+                if (isShow) {
+                    Toast.makeText(ReceiveCameraActivity.this, "移除组群失败,请创建组群重试", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

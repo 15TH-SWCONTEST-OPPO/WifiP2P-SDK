@@ -4,6 +4,7 @@ import static com.myapp.utils.WifiUtils.intToByteArray;
 
 import android.os.Build;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -36,16 +37,19 @@ public class NettyServer {
 
     private static int headInfoLength = 14;
 
+    private EventLoopGroup bossGroup;
+
+    private  EventLoopGroup workerGroup;
 
     public NettyServer(Integer port, Handler mHandler) {
         this.port = port;
         this.mHandler = mHandler;
     }
 
-    public void run() throws InterruptedException {
+    public void run(Handler nettyHandler) {
         //创建两个线程组
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(); //8个NioEventLoop
+        bossGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup(); //8个NioEventLoop
 
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -68,14 +72,38 @@ public class NettyServer {
                     });
 
             System.out.println("netty 服务器启动");
-            channelFuture = b.bind(new InetSocketAddress(port)).sync();
+            Message message = new Message();
+            try {
+                channelFuture = b.bind(new InetSocketAddress(port)).sync();
+            } catch (InterruptedException interruptedException) {
+                message = new Message();
+                message.what = 1;
+                nettyHandler.sendMessage(message);
+
+                interruptedException.printStackTrace();
+            }
+            message.what = 0;
+            nettyHandler.sendMessage(message);
 
             //监听关闭
-            channelFuture.channel().closeFuture().sync();
+            try {
+                channelFuture.channel().closeFuture().sync();
+            } catch (InterruptedException interruptedException) {
+                message = new Message();
+                message.what = 1;
+                nettyHandler.sendMessage(message);
+
+                interruptedException.printStackTrace();
+            }
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
+    }
+
+    public void stop(){
+        workerGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

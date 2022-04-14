@@ -149,7 +149,7 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
         if (mProgressDialog != null) {
             mProgressDialog.dismiss();
         }
-        Toast.makeText(this, "接收失败，请重试！", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "接收失败，请重试！", Toast.LENGTH_SHORT).show();
     }
 
 

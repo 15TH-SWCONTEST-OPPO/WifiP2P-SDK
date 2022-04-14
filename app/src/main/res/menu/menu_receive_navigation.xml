@@ -12,8 +12,8 @@
         android:title="移除群组" />
 
     <item
-        android:id="@+id/start_server"
-        android:title="开启服务端" />
+        android:id="@+id/stop_server"
+        android:title="关闭服务端" />
 
     <item
         android:id="@+id/rdisconnect"
