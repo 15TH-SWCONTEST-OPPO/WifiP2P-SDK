@@ -34,7 +34,6 @@ import com.myapp.utils.Md5Util;
 public class ReceiveSocket extends Activity {
 
     public static final String TAG = "ReceiveSocket";
-    public static final int PORT = 10000;
     private ServerSocket mServerSocket;
     private Socket mSocket;
     private InputStream mInputStream;
@@ -83,7 +82,7 @@ public class ReceiveSocket extends Activity {
             mServerSocket = new ServerSocket();
             mServerSocket.setReuseAddress(true);
             //绑定端口
-            mServerSocket.bind(new InetSocketAddress(PORT));
+            mServerSocket.bind(new InetSocketAddress(Constant.sendPort));
             //开始接收
             mSocket = mServerSocket.accept();
             Log.e(TAG, "客户端IP地址 : " + mSocket.getRemoteSocketAddress());

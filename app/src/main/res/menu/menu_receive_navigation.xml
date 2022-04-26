@@ -37,6 +37,10 @@
         android:title="结束录制" />
 
     <item
+        android:id="@+id/beauty"
+        android:title="美颜照片"/>
+
+    <item
         android:id="@+id/rquality_group"
         android:title="传输质量">
 

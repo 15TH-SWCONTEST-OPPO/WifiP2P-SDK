@@ -16,21 +16,21 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/btn_connectserver"
+                android:id="@+id/file_btn_connectserver"
                 android:layout_width="120dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="20dp"
                 android:text="建立配对连接"/>
 
             <Button
-                android:id="@+id/btn_cancelconnect"
+                android:id="@+id/file_btn_cancelconnect"
                 android:layout_width="120dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="20dp"
                 android:text="取消配对连接"/>
 
             <Button
-                android:id="@+id/btn_chosefile"
+                android:id="@+id/file_btn_chosefile"
                 android:layout_width="120dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="20dp"

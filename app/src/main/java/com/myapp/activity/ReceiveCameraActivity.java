@@ -39,6 +39,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,8 +49,17 @@ import com.myapp.ProgressDialog;
 import com.myapp.R;
 import com.myapp.Wifip2pCameraService;
 import com.myapp.utils.FilePathUtils;
+import com.myapp.utils.MeiTuAIUtil;
 import com.myapp.utils.NettyState;
 import com.myapp.utils.NettyUtils;
+import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.vod.upload.VODUploadCallback;
+import com.alibaba.sdk.android.vod.upload.VODUploadClient;
+import com.alibaba.sdk.android.vod.upload.VODUploadClientImpl;
+import com.alibaba.sdk.android.vod.upload.model.UploadFileInfo;
+import com.alibaba.sdk.android.vod.upload.model.VodInfo;
+
+import okhttp3.Response;
 
 public class ReceiveCameraActivity extends BaseActivity {
 
@@ -73,6 +83,7 @@ public class ReceiveCameraActivity extends BaseActivity {
 
     private Toolbar toolbar;
 
+    private String beautyPath = null;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -101,6 +112,7 @@ public class ReceiveCameraActivity extends BaseActivity {
             Toast.makeText(this, "当前无选中的设备", Toast.LENGTH_SHORT).show();
             return;
         }
+        Toast.makeText(ReceiveCameraActivity.this, "发送指令", Toast.LENGTH_SHORT).show();
         if (command.equals(Constant.SENDCAMERA)) {
             nettyUtils.sendCommand(selectedName, Constant.SENDCAMERA.getBytes(), "text");
         } else if (command.equals(Constant.SENDIMAGE)) {
@@ -188,6 +200,9 @@ public class ReceiveCameraActivity extends BaseActivity {
                     case R.id.rdisconnect:
                         sendCommand(Constant.DISCONNECT);
                         break;
+                    case R.id.beauty:
+                        beauty();
+                        break;
                     case R.id.rquality_high:
                         sendCommand(Constant.HIGHQUALITY);
                         break;
@@ -208,11 +223,51 @@ public class ReceiveCameraActivity extends BaseActivity {
         });
     }
 
-    private void stopNetty() {
-        if (!isServerStarted) {
-            Toast.makeText(ReceiveCameraActivity.this, "服务未开启", Toast.LENGTH_SHORT).show();
-            return;
+    @SuppressLint("HandlerLeak")
+    private void beauty() {
+        if (beautyPath == null) {
+            Toast.makeText(ReceiveCameraActivity.this, "当前选中图片为空", Toast.LENGTH_SHORT).show();
         }
+        Handler handler = new Handler() {
+
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                if (msg.what == 0) {
+                    Toast.makeText(ReceiveCameraActivity.this, "美颜出现异常", Toast.LENGTH_SHORT).show();
+                } else if (msg.what == 1) {
+//                    Response response = (Response) msg.obj;
+//                    System.out.println(response);
+                    Bitmap bitmap = (Bitmap) msg.obj;
+                    photoView.setImageBitmap(bitmap);
+                    try {
+                        FilePathUtils.saveBitmap(bitmap);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (msg.what == 2) {
+                    Toast.makeText(ReceiveCameraActivity.this, "请检查图片中是否有人脸", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        try {
+            MeiTuAIUtil.doPost(beautyPath, 70, "jpg", handler);
+        } catch (Exception e) {
+            Toast.makeText(ReceiveCameraActivity.this, "美颜出现异常", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    private void stopNetty() {
+//        if (!isServerStarted) {
+//            Toast.makeText(ReceiveCameraActivity.this, "服务未开启", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+        if(!isServerStarted){
+            Toast.makeText(ReceiveCameraActivity.this, "服务未开启", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(ReceiveCameraActivity.this, "服务已关闭", Toast.LENGTH_SHORT).show();
+        }
+        isServerStarted = false;
         nettyUtils.stopServer();
     }
 
@@ -280,7 +335,11 @@ public class ReceiveCameraActivity extends BaseActivity {
                     Toast.makeText(ReceiveCameraActivity.this, text, Toast.LENGTH_SHORT).show();
                 } else if (message.equals("photo") && data.length != 0) {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    FilePathUtils.saveBitmap(bitmap);
+                    try {
+                        beautyPath = FilePathUtils.saveBitmap(bitmap);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     photoView.setImageBitmap(bitmap);
                     //imageView.setImageBitmap(bitmap);
                 } else if (message.equals("video") && data.length != 0) {
@@ -359,7 +418,7 @@ public class ReceiveCameraActivity extends BaseActivity {
                 isGroupFormed = false;
                 Log.e(TAG, "移除组群成功");
                 if (isShow) {
-                    if(isServerStarted){
+                    if (isServerStarted) {
                         nettyUtils.stopServer();
                         isServerStarted = false;
                     }
@@ -381,6 +440,25 @@ public class ReceiveCameraActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (isServerStarted) {
+            nettyUtils.stopServer();
+        }
+
+        removeGroup(false);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isServerStarted) {
+            nettyUtils.stopServer();
+        }
+        removeGroup(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        removeGroup(false);
+    }
 }

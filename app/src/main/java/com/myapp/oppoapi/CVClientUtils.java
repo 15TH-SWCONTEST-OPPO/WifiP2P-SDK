@@ -2,6 +2,10 @@ package com.myapp.oppoapi;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
+import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 
 import com.aiunit.core.FrameData;
@@ -13,6 +17,10 @@ import com.coloros.ocs.ai.cv.CVUnitClient;
 import com.coloros.ocs.base.common.ConnectionResult;
 import com.coloros.ocs.base.common.api.OnConnectionFailedListener;
 import com.coloros.ocs.base.common.api.OnConnectionSucceedListener;
+import com.myapp.utils.FilePathUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class CVClientUtils {
 
@@ -22,7 +30,6 @@ public class CVClientUtils {
     public CVClientUtils(Context context) {
         this.context = context;
         init(context);
-        connect2AIUnitServer();
     }
 
     private void init(Context context){
@@ -58,7 +65,7 @@ public class CVClientUtils {
         Log.d("TAG","2");
     }
 
-    public byte[] runAIUnitServer(Bitmap bitmap){
+    public Bitmap runAIUnitServer(Bitmap bitmap) throws Exception {
         FrameInputSlot inputSlot = (FrameInputSlot) mCVClient.createInputSlot();
         inputSlot.setTargetBitmap(bitmap);
         FrameOutputSlot outputSlot = (FrameOutputSlot) mCVClient.createOutputSlot();
@@ -66,9 +73,24 @@ public class CVClientUtils {
         int code = mCVClient.process(inputSlot, outputSlot);
         Log.d("TAG",String.valueOf(code));
         FrameData frameData = outputSlot.getOutFrameData();
-
+        if(frameData==null) {
+            throw new Exception();
+        }
         byte[] outImageBuffer = frameData.getData();
-        return outImageBuffer;
+        try {
+            File file = FilePathUtils.getOutputMediaFile(FilePathUtils.MEDIA_TYPE_IMAGE);
+           // File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/facenew1.png");
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(outImageBuffer, 0, outImageBuffer.length);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Bitmap array = BitmapFactory.decodeByteArray(outImageBuffer, 0, outImageBuffer.length);
+        return array;
+        //return outImageBuffer;
     }
 
     public void releaseAIUnitServer(){

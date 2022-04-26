@@ -1,12 +1,12 @@
 package com.myapp.utils;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -59,25 +59,30 @@ public class FilePathUtils {
         return mediaFile;
     }
 
-    public static void saveBitmap(Bitmap bm) {
+    public static String saveBitmap(Bitmap bm) throws Exception {
         Log.d("Save Bitmap", "Ready to save picture");
+        FileOutputStream saveImgOut = null;
+        File outputMediaFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+
+        saveImgOut = new FileOutputStream(outputMediaFile);
+
+        FileOutputStream finalSaveImgOut = saveImgOut;
         new Thread(new Runnable() {
             @Override
             public void run() {
+                bm.compress(Bitmap.CompressFormat.JPEG, 80, finalSaveImgOut);
+                //存储完成后需要清除相关的进程
                 try {
-                    FileOutputStream saveImgOut = new FileOutputStream(getOutputMediaFile(MEDIA_TYPE_IMAGE));
-                    // compress - 压缩的意思
-                    bm.compress(Bitmap.CompressFormat.JPEG, 80, saveImgOut);
-                    //存储完成后需要清除相关的进程
-                    saveImgOut.flush();
-                    saveImgOut.close();
-                    Log.d("Save Bitmap", "The picture is save to your phone!");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                    finalSaveImgOut.flush();
+                    finalSaveImgOut.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+
+                Log.d("Save Bitmap", "The picture is save to your phone!");
             }
         }).start();
-
+        return outputMediaFile.getAbsolutePath();
     }
 
     static class FileUtils {

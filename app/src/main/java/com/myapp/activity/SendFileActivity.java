@@ -1,6 +1,7 @@
 package com.myapp.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -66,23 +67,27 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_file);
-        Button mBtnChoseFile = (Button) findViewById(R.id.btn_chosefile);
-        Button mBtnConnectServer = (Button) findViewById(R.id.btn_connectserver);
+        Button mBtnChoseFile = (Button) findViewById(R.id.file_btn_chosefile);
+        Button mBtnConnectServer = (Button) findViewById(R.id.file_btn_connectserver);
+        Button mBtnCancelConnect = (Button) findViewById(R.id.file_btn_cancelconnect);
         mTvDevice = (ListView) findViewById(R.id.lv_device);
 
         mBtnChoseFile.setOnClickListener(this);
         mBtnConnectServer.setOnClickListener(this);
+        mBtnCancelConnect.setOnClickListener(this);
+
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
         String hostAddress = "";
         String type = "";
         switch (v.getId()) {
-            case R.id.btn_chosefile:
+            case R.id.file_btn_chosefile:
                 chooseFile();
                 break;
-            case R.id.btn_connectserver:
+            case R.id.file_btn_connectserver:
                 mDialog = new AlertDialog.Builder(this, R.style.Transparent).create();
                 mDialog.show();
                 mDialog.setCancelable(false);
@@ -90,7 +95,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                 //搜索设备
                 connectServer();
                 break;
-            case R.id.btn_cancelconnect:
+            case R.id.file_btn_cancelconnect:
                 cancelConnect();
 //            case R.id.btn_sendtext:
 //                type = Constant.TEXT;
@@ -190,11 +195,13 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onSuccess() {
                 // WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION 广播，此时就可以调用 requestPeers 方法获取设备列表信息
+                Toast.makeText(SendFileActivity.this, "移除成功", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "取消成功");
             }
 
             @Override
             public void onFailure(int reasonCode) {
+                Toast.makeText(SendFileActivity.this, "移除失败", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "取消失败");
             }
         });

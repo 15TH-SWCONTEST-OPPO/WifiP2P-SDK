@@ -27,4 +27,6 @@ public class Constant {
     public final static String MEDIUMQUALITY = "MEDIUMQUALITY";
 
     public final static String LOWQUALITY = "LOWQUALITY";
+
+    public final static Integer sendPort = 35468;
 }

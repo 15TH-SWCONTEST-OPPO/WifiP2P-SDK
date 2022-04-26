@@ -112,6 +112,9 @@ public class NettyClient {
     }
 
     public void close() {
+        if(group==null){
+            return;
+        }
         group.shutdownGracefully();
     }
 }

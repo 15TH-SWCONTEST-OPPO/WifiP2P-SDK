@@ -65,7 +65,7 @@ public class BaseActivity extends AppCompatActivity implements Wifip2pActionList
         if (wifiP2pInfo != null) {
             mWifiP2pInfo = wifiP2pInfo;
             //Log.d("测试", "在BaseActivity中");
-            Log.e(TAG, "WifiP2pInfo:" + wifiP2pInfo);
+            Log.e(TAG, "啦啦啦啦啦啦啦啦啦啦WifiP2pInfo:" + wifiP2pInfo);
         }
     }
 

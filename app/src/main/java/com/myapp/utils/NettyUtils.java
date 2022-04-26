@@ -26,7 +26,6 @@ public class NettyUtils {
     private NettyConnectionListener mNettyConnectionListener = null;
 
 
-
     public void setUpService() {
         nettyServer = new NettyServer(Constant.NETTYPORT, mHandler);
     }
@@ -48,8 +47,10 @@ public class NettyUtils {
         }).start();
     }
 
-    public void stopServer(){
-        nettyServer.stop();
+    public void stopServer() {
+        if(nettyServer!=null){
+            nettyServer.stop();
+        }
     }
 
     public void sendData(byte[] bytes, String type) {
@@ -58,7 +59,7 @@ public class NettyUtils {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sendCommand(String selectedName, byte[] bytes, String text) {
-        nettyServer.push(selectedName,bytes,text);
+        nettyServer.push(selectedName, bytes, text);
     }
 
     // 自定义数据接收监听器
@@ -84,8 +85,10 @@ public class NettyUtils {
         mNettyConnectionListener = listener;
     }
 
-    public void releaseClient(){
-        nettyClient.close();
+    public void releaseClient() {
+        if (nettyClient != null) {
+            nettyClient.close();
+        }
     }
 
     @SuppressLint("HandlerLeak")
