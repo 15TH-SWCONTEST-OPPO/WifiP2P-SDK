@@ -31,7 +31,6 @@ public class SendTask extends AsyncTask<String, Integer, Void> implements SendSo
     public SendTask(Context ctx, FileBean fileBean) {
         mFileBean = fileBean;
         mContext = ctx;
-
     }
 
     @Override
@@ -44,7 +43,7 @@ public class SendTask extends AsyncTask<String, Integer, Void> implements SendSo
     @Override
     protected Void doInBackground(String... strings) {
         TransBean transBean = new TransBean(Constant.FILE,"",mFileBean);
-        mSendSocket = new SendSocket(transBean, strings[0], this);
+        mSendSocket = new SendSocket(transBean, strings[0],strings[1], this);
         mSendSocket.createSendSocket();
         return null;
     }

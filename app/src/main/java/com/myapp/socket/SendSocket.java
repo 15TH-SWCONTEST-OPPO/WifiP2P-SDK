@@ -27,6 +27,7 @@ public class SendSocket {
 
     private FileBean mFileBean;
     private String mAddress;
+    private Integer mPort;
     private File mFile;
     private String mText;
     private String mType;
@@ -58,11 +59,12 @@ public class SendSocket {
         }
     };
 
-    public SendSocket(TransBean transBean, String address, ProgressSendListener listener) {
+    public SendSocket(TransBean transBean, String address, String port, ProgressSendListener listener) {
         mAddress = address;
         mlistener = listener;
         mType = transBean.type;
         mTransBean = transBean;
+        mPort = Integer.parseInt(port);
         if(transBean.type.equals(Constant.FILE)){
             mFileBean = transBean.fileBean;
         }
@@ -80,7 +82,7 @@ public class SendSocket {
         try {
             // 创建Socket对象
             Socket socket = new Socket();
-            InetSocketAddress inetSocketAddress = new InetSocketAddress(mAddress, Constant.sendPort);
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(mAddress, mPort);
             // 连接对方
             socket.connect(inetSocketAddress);
             // 获得socket对象的输出流

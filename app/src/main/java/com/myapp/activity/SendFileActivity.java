@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.myapp.Constant;
 import com.myapp.FileBean;
 import com.myapp.R;
 import com.myapp.utils.FileUtils;
@@ -241,7 +242,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                         String md5 = Md5Util.getMd5(file);
                         FileBean fileBean = new FileBean(file.getPath(), file.length(), md5);
                         String hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
-                        new SendTask(SendFileActivity.this, fileBean).execute(hostAddress);
+                        new SendTask(SendFileActivity.this, fileBean).execute(hostAddress, Constant.sendPort.toString());
                     }
                 }
             }

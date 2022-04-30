@@ -58,6 +58,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         startActivity(new Intent(this,ReceiveCameraActivity.class));
     }
 
+    public void scanCode(View v){
+        startActivity(new Intent(this, com.dommy.qrcode.MainActivity.class));
+    }
+
     //申请权限
     @AfterPermissionGranted(1000)
     private void requireSomePermission() {

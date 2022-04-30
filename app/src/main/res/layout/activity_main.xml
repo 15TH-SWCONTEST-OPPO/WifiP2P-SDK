@@ -35,4 +35,11 @@
         android:text="接收文件"
         android:onClick="receiveFile"/>
 
+    <Button
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="扫码"
+        android:onClick="scanCode"/>
+
 </LinearLayout>

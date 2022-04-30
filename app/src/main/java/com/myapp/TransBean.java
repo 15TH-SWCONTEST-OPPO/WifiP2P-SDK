@@ -3,6 +3,9 @@ package com.myapp;
 import java.io.Serializable;
 
 public class TransBean implements Serializable {
+
+    private static final long serialVersionUID = 5378738997755484868L;
+
     public String type;
 
     public String text;
