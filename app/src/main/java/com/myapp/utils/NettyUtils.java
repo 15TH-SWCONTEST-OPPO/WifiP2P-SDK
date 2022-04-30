@@ -39,10 +39,19 @@ public class NettyUtils {
     }
 
     public void startService(Handler nettyHandler) {
+        Message msg = new Message();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                nettyServer.run(nettyHandler);
+                try {
+                    nettyServer.run(nettyHandler);
+//                    msg.what = 0;
+//                    nettyHandler.sendMessage(msg);
+                }catch (Exception e){
+                    msg.what = 1;
+                    nettyHandler.sendMessage(msg);
+                }
+
             }
         }).start();
     }

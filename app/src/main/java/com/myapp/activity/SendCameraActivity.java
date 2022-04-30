@@ -47,6 +47,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.Range;
 import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -146,6 +147,8 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
     private int quality = 50;
 
     private int oriention = 0;
+
+    private static Range<Integer>[] fpsRanges;
 
     private CameraCaptureSession mCameraCaptureSession;
 
@@ -323,9 +326,9 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
 //            Toast.makeText(SendCameraActivity.this, "服务未连接", Toast.LENGTH_SHORT).show();
 //            return;
 //        }
-        if(!isNettyConnected){
+        if (!isNettyConnected) {
             Toast.makeText(SendCameraActivity.this, "服务未连接", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(SendCameraActivity.this, "服务已关闭", Toast.LENGTH_SHORT).show();
         }
         isNettyConnected = false;
@@ -385,10 +388,27 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         if (isRecording) {
             return;
         }
-        isRecording = true;
-        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.stop_record));
+        if (mediaRecorder == null) {
+            Toast.makeText(SendCameraActivity.this, "相机还未准备好", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        newBtn.setEnabled(false);
         mediaRecorder.start();
+        SystemClock.sleep(300);
+        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.stop_record));
+
+        isRecording = true;
         Toast.makeText(SendCameraActivity.this, "开始录制", Toast.LENGTH_SHORT).show();
+        SystemClock.sleep(300);
+        newBtn.setEnabled(true);
+
+//        try{
+//
+//        }catch (RuntimeException e){
+//            newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.start_record));
+//            isRecording = false;
+//            Toast.makeText(SendCameraActivity.this,"您点的太快了",Toast.LENGTH_SHORT).show();
+//        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -396,13 +416,30 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         if (!isRecording) {
             return;
         }
-        mediaRecorder.stop();
-        releaseMediaRecorder();
+        if (mediaRecorder == null) {
+            Toast.makeText(SendCameraActivity.this, "相机还未为准备好", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        newBtn.setEnabled(false);
 
+        mediaRecorder.stop();
+        SystemClock.sleep(300);
+        releaseMediaRecorder();
         setUpMediaRecorder();
+        SystemClock.sleep(300);
         isRecording = false;
         Toast.makeText(SendCameraActivity.this, "停止录制", Toast.LENGTH_SHORT).show();
         newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.start_record));
+
+        newBtn.setEnabled(true);
+//        try {
+//
+//        }catch (RuntimeException e){
+//            isRecording = true;
+//            newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.stop_record));
+//            Toast.makeText(SendCameraActivity.this,"您点的太快了",Toast.LENGTH_SHORT).show();
+//        }
+
     }
 
 
@@ -447,6 +484,7 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
                     //Toast.makeText(SendCameraActivity.this, text, Toast.LENGTH_SHORT).show();
                     if (text.equals(Constant.SENDIMAGE)) {
                         sendPhoto();
+                        Toast.makeText(SendCameraActivity.this, "收到指令", Toast.LENGTH_SHORT).show();
                     } else if (text.equals(Constant.STARTRECORD)) {
                         startRecord();
                     } else if (text.equals(Constant.STOPRECORD)) {
@@ -607,9 +645,14 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
                 public void onFailure(int reason) {
                     Log.e(TAG, "连接失败");
                     isWifiConnected = false;
-//                    if (mDialog != null) {
-//                        mDialog.dismiss();
-//                    }
+                    if (connectTime >= 2) {
+                        connectTime = 0;
+                        if (mDialog != null) {
+                            mDialog.dismiss();
+                        }
+                        //Toast.makeText(SendCameraActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
+                    }
+
                     Toast.makeText(SendCameraActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -635,6 +678,10 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         try {
             String cameraId = manager.getCameraIdList()[0];//这个可能会有很多个，但是通常都是两个，第一个是后置，第二个是前置；
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+            // 该相机的FPS范围
+            fpsRanges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+            Log.d("FPS", "SYNC_MAX_LATENCY_PER_FRAME_CONTROL: " + Arrays.toString(fpsRanges));
+            // 设置预览画面的帧率 视实际情况而定选择一个帧率范围
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -686,6 +733,7 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
             setUpMediaRecorder();
             final CaptureRequest.Builder captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
 
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRanges[0]);
             Surface imageSurface = imageReader.getSurface();
             captureRequestBuilder.addTarget(mSurfaceHolder.getSurface());
             captureRequestBuilder.addTarget(mRecorderSurface);
@@ -765,34 +813,71 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         return CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
     }
 
-    private void setUpImageReader() {
-        imageReader = ImageReader.newInstance(400, 300, ImageFormat.JPEG, 10);
-        imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
-            @Override
-            public void onImageAvailable(ImageReader reader) {
-                Image image = reader.acquireLatestImage();
-                if (image != null && isPicture) {
+    @SuppressLint("HandlerLeak")
+    private Handler photoHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            byte[] bytes = (byte[]) msg.obj;
+            switch (msg.what) {
+                case 0:
                     System.out.println("发送图片");
-                    isPicture = false;
-                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                    byte[] bytes = new byte[buffer.capacity()];
-                    buffer.get(bytes);
+                    //ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+
                     Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
 //                    byte[] transfrom = runAIUnitServer(bitmapImage);
 //                    Bitmap transfromed = BitmapFactory.decodeByteArray(transfrom, 0, bytes.length, null);
 
                     nettyUtils.sendData(compressImage(bitmapImage, quality), "photo");
                     //bitmapImage.recycle();
+                    break;
+                case 1:
+                    //buffer = image.getPlanes()[0].getBuffer();
+
+                    bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+                    nettyUtils.sendData(compressImage(bitmapImage, quality), "video");
+                    break;
+            }
+
+        }
+    };
+
+    private void setUpImageReader() {
+        imageReader = ImageReader.newInstance(400, 300, ImageFormat.JPEG, 3);
+        imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+
+
+            @Override
+            public void onImageAvailable(ImageReader reader) {
+                Image image = null;
+                try {
+                    image = reader.acquireLatestImage();
+                } catch (Exception e) {
+
+                }
+                if (image != null && isPicture) {
+                    isPicture = false;
+                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                    byte[] bytes = new byte[buffer.capacity()];
+                    buffer.get(bytes);
+
+                    Message msg = new Message();
+                    msg.what = 0;
+                    msg.obj = bytes;
+                    photoHandler.sendMessage(msg);
+                    image.close();
                     return;
                 }
 
                 if (image != null && mark) {
                     //System.out.println("有图像");
+                    Message msg = new Message();
                     ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                     byte[] bytes = new byte[buffer.capacity()];
                     buffer.get(bytes);
-                    Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
-                    nettyUtils.sendData(compressImage(bitmapImage, quality), "video");
+
+                    msg.what = 1;
+                    msg.obj = bytes;
+                    photoHandler.sendMessage(msg);
 //                    Bitmap transfromed;
 //                    try {
 //                        transfromed = cvClientUtils.runAIUnitServer(bitmapImage);
@@ -950,17 +1035,29 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //onCreate(new Bundle());
+    }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        releaseMediaRecorder();       // if you are using MediaRecorder, release it first
+    protected void onStop() {
+        super.onStop();
+        //onDestroy();
+        releaseMediaRecorder();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        openCamera();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(isNettyConnected){
+        if (isNettyConnected) {
             nettyUtils.releaseClient();
         }
 

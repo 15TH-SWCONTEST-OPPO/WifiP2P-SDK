@@ -358,27 +358,29 @@ public class ReceiveCameraActivity extends BaseActivity {
         });
     }
 
+    @SuppressLint("HandlerLeak")
+    final Handler nettyHandler = new Handler() {
+        @SuppressLint("HandlerLeak")
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what) {
+                case 0:
+                    isServerStarted = true;
+                    Toast.makeText(ReceiveCameraActivity.this, "服务开启成功", Toast.LENGTH_SHORT).show();
+                    break;
+                case 1:
+                    isServerStarted = false;
+                    Toast.makeText(ReceiveCameraActivity.this, "服务异常", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
     private void startNetty() {
         if (!isGroupFormed) {
             Toast.makeText(ReceiveCameraActivity.this, "未创建群组", Toast.LENGTH_SHORT).show();
             return;
         }
-        @SuppressLint("HandlerLeak") final Handler nettyHandler = new Handler() {
-            @SuppressLint("HandlerLeak")
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                switch (msg.what) {
-                    case 0:
-                        isServerStarted = true;
-                        Toast.makeText(ReceiveCameraActivity.this, "服务开启成功", Toast.LENGTH_SHORT).show();
-                        break;
-                    case 1:
-                        isServerStarted = false;
-                        Toast.makeText(ReceiveCameraActivity.this, "服务异常", Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-        };
         nettyUtils.startService(nettyHandler);
     }
 
@@ -418,10 +420,9 @@ public class ReceiveCameraActivity extends BaseActivity {
                 isGroupFormed = false;
                 Log.e(TAG, "移除组群成功");
                 if (isShow) {
-                    if (isServerStarted) {
-                        nettyUtils.stopServer();
-                        isServerStarted = false;
-                    }
+                    nettyUtils.stopServer();
+                    isServerStarted = false;
+                    nettyUtils.releaseClient();
                     Toast.makeText(ReceiveCameraActivity.this, "移除组群成功", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -450,10 +451,23 @@ public class ReceiveCameraActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (isServerStarted) {
-            nettyUtils.stopServer();
-        }
+        //onDestroy();
+        isServerStarted = false;
+        nettyUtils.stopServer();
+        nettyUtils.releaseClient();
         removeGroup(false);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        nettyUtils = new NettyUtils();
+        nettyUtils.setUpService();
+
+        viewMap = new HashMap<>();
+
+        initWifi();
+        initView();
     }
 
     @Override

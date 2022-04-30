@@ -39,7 +39,7 @@ public class NettyServer {
 
     private EventLoopGroup bossGroup;
 
-    private  EventLoopGroup workerGroup;
+    private EventLoopGroup workerGroup;
 
     public NettyServer(Integer port, Handler mHandler) {
         this.port = port;
@@ -101,9 +101,13 @@ public class NettyServer {
         }
     }
 
-    public void stop(){
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
+    public void stop() {
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+        }
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
