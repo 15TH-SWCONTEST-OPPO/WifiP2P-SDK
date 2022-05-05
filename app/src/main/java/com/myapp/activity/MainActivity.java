@@ -14,6 +14,8 @@ import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+
+import com.NFC.activity.ReadActivity;
 import com.myapp.R;
 
 /**
@@ -60,6 +62,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     public void scanCode(View v){
         startActivity(new Intent(this, com.dommy.qrcode.MainActivity.class));
+    }
+
+    public void sendNFC(View view) {
+        startActivity(new Intent(this, com.NFC.SendActivity.class));
+    }
+
+    public void receiveNFC(View view) {
+        startActivity(new Intent(this, com.NFC.ReceiveActivity.class));
     }
 
     //申请权限
@@ -109,4 +119,5 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     public void onPermissionsDenied(int i, @NonNull List<String> list) {
         Log.e(TAG,"权限申请失败");
     }
+
 }

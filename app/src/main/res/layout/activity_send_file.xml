@@ -30,6 +30,13 @@
                 android:text="取消配对连接"/>
 
             <Button
+                android:id="@+id/file_btn_nfc"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:text="通过nfc获取"/>
+
+            <Button
                 android:id="@+id/file_btn_chosefile"
                 android:layout_width="120dp"
                 android:layout_height="50dp"

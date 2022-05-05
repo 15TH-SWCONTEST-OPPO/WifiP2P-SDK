@@ -94,6 +94,7 @@ public class Wifip2pReceiver extends BroadcastReceiver {
                 WifiP2pDevice device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
                 mListener.onDeviceInfo(device);
                 break;
+
             default:
                 break;
         }

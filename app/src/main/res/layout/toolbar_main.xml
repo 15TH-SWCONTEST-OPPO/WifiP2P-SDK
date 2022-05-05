@@ -17,8 +17,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="首页"
-            android:textColor="@android:color/white"
+            android:text="扫码连接电脑"
+            android:textColor="@android:color/black"
             android:textSize="18sp" />
 
     </RelativeLayout>

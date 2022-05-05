@@ -62,7 +62,7 @@ public class NettyClient {
         byte[] encode = encode(bytes, type);
 
         if (encode != null) {
-            Log.d("netty","发送消息");
+            Log.d("netty", "发送消息");
             channel.writeAndFlush(encode);
         }
     }
@@ -112,7 +112,7 @@ public class NettyClient {
     }
 
     public void close() {
-        if(group==null){
+        if (group == null) {
             return;
         }
         group.shutdownGracefully();

@@ -85,7 +85,7 @@ public class ReceiveCameraActivity extends BaseActivity {
 
     private String beautyPath = null;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    //@RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -400,6 +400,7 @@ public class ReceiveCameraActivity extends BaseActivity {
                 Log.e(TAG, "创建群组成功");
                 ///Toast.makeText(ReceiveCameraActivity.this, "创建群组成功", Toast.LENGTH_SHORT).show();
                 startNetty();
+
             }
 
             @Override

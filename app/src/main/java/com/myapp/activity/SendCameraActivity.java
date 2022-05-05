@@ -82,20 +82,21 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import com.aiunit.core.FrameData;
-import com.aiunit.vision.common.ConnectionCallback;
-import com.aiunit.vision.common.FrameInputSlot;
-import com.aiunit.vision.common.FrameOutputSlot;
-import com.coloros.ocs.ai.cv.CVUnit;
-import com.coloros.ocs.ai.cv.CVUnitClient;
-import com.coloros.ocs.base.common.ConnectionResult;
-import com.coloros.ocs.base.common.api.OnConnectionFailedListener;
-import com.coloros.ocs.base.common.api.OnConnectionSucceedListener;
+//import com.aiunit.core.FrameData;
+//import com.aiunit.vision.common.ConnectionCallback;
+//import com.aiunit.vision.common.FrameInputSlot;
+//import com.aiunit.vision.common.FrameOutputSlot;
+//import com.coloros.ocs.ai.cv.CVUnit;
+//import com.coloros.ocs.ai.cv.CVUnitClient;
+//import com.coloros.ocs.base.common.ConnectionResult;
+//import com.coloros.ocs.base.common.api.OnConnectionFailedListener;
+//import com.coloros.ocs.base.common.api.OnConnectionSucceedListener;
+//import com.myapp.oppoapi.CVClientUtils;
 import com.google.android.material.navigation.NavigationView;
 import com.myapp.Constant;
 import com.myapp.FileBean;
 import com.myapp.R;
-import com.myapp.oppoapi.CVClientUtils;
+
 import com.myapp.utils.FilePathUtils;
 import com.myapp.utils.FileUtils;
 import com.myapp.utils.Md5Util;
@@ -177,7 +178,7 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
 
     private ImageButton newBtn;
 
-    private CVClientUtils cvClientUtils;
+    //private CVClientUtils cvClientUtils;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -216,8 +217,8 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
 
         initDrawer();
 
-        cvClientUtils = new CVClientUtils(SendCameraActivity.this);
-        cvClientUtils.connect2AIUnitServer();
+        //cvClientUtils = new CVClientUtils(SendCameraActivity.this);
+        //cvClientUtils.connect2AIUnitServer();
     }
 
     private void initDrawer() {
@@ -1045,6 +1046,10 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
     protected void onStop() {
         super.onStop();
         //onDestroy();
+        isNettyConnected = false;
+        isWifiConnected = false;
+        cancelConnect(false);
+        nettyUtils.releaseClient();
         releaseMediaRecorder();
     }
 
@@ -1057,13 +1062,11 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (isNettyConnected) {
-            nettyUtils.releaseClient();
-        }
-
+        isNettyConnected = false;
+        isWifiConnected = false;
+        nettyUtils.releaseClient();
         cancelConnect(false);
         releaseMediaRecorder();       // if you are using MediaRecorder, release it first
     }
-
 
 }

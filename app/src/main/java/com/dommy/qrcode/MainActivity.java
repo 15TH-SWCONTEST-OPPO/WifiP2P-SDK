@@ -32,15 +32,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnQrCode; // 扫码
     private TextView tvResult; // 结果
 
-//    private String serverIP = null;
+    private String serverIP = null;
+
+    private Integer serverPort = null;
+
+//    private String serverIP = "192.168.43.236";
 //
-//    private Integer serverPort = null;
+//    private Integer serverPort = 35674;
 
-    private String serverIP = "192.168.43.236";
-
-    private Integer serverPort = 35674;
-
-    private boolean isServerEnable = true;
+    private boolean isServerEnable = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView() {
         btnQrCode = (Button) findViewById(R.id.btn_qrcode);
-        Button btn_choose_file = (Button)findViewById(R.id.btn_choose_file);
+        Button btn_choose_file = (Button) findViewById(R.id.btn_choose_file);
         btn_choose_file.setOnClickListener(this);
         btnQrCode.setOnClickListener(this);
 
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (requestCode == Constant.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(Constant.INTENT_EXTRA_KEY_QR_SCAN);
-            if(scanResult==null||scanResult.length()<10){
+            if (scanResult == null || scanResult.length() < 10) {
                 Toast.makeText(MainActivity.this, "二维码信息不正确", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -123,12 +123,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             boolean matches = pcData[0].matches("^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$");
             int parseInt = Integer.parseInt(pcData[1]);
-            boolean check = parseInt>=0&&parseInt<=65530;
-            if(!(matches&&check)){
+            boolean check = parseInt >= 0 && parseInt <= 65530;
+            if (!(matches && check)) {
                 Toast.makeText(MainActivity.this, "二维码信息不正确", Toast.LENGTH_SHORT).show();
                 return;
             }
-            serverIP =pcData[0];
+            serverIP = pcData[0];
             serverPort = parseInt;
             isServerEnable = true;
             tvResult.setText(scanResult);
@@ -148,8 +148,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Toast.makeText(MainActivity.this, "连接不存在", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        if(!isServerEnable){
-                            Toast.makeText(MainActivity.this,"请检查是否获得信息",Toast.LENGTH_SHORT).show();
+                        if (!isServerEnable) {
+                            Toast.makeText(MainActivity.this, "请检查是否获得信息", Toast.LENGTH_SHORT).show();
                             return;
                         }
                         String md5 = Md5Util.getMd5(file);

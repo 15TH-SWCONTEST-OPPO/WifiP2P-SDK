@@ -42,4 +42,18 @@
         android:text="扫码"
         android:onClick="scanCode"/>
 
+    <Button
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="snedNFC"
+        android:onClick="sendNFC"/>
+
+    <Button
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="receiveNFC"
+        android:onClick="receiveNFC"/>
+
 </LinearLayout>

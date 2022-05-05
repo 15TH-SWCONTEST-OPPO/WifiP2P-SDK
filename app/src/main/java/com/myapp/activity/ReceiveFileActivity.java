@@ -1,21 +1,39 @@
 package com.myapp.activity;
 
+import static com.myapp.utils.NFCUtils.mNfcAdapter;
+
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.List;
 
+import com.NFC.WriteActivity;
+import com.NFC.utils.NFCUtils;
+import com.google.gson.Gson;
 import com.myapp.ProgressDialog;
 import com.myapp.R;
 import com.myapp.Wifip2pService;
@@ -33,7 +51,13 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     private Wifip2pService.MyBinder mBinder;
     private ProgressDialog mProgressDialog;
     private Intent mIntent;
+    //
+    private final String _MIME_TYPE = "text/plain";
+    private Button writeButton;
 
+    private AlertDialog alertDialog;
+
+    private Button nfcShare;
     // 创建一个服务连接，与写好的WifiService进行连接
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -58,8 +82,11 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
         setContentView(R.layout.activity_receive_file);
         Button btnCreate = (Button) findViewById(R.id.btn_create);
         Button btnRemove = (Button) findViewById(R.id.btn_remove);
+        nfcShare = findViewById(R.id.nfc_share);
+        nfcShare.setEnabled(false);
         btnCreate.setOnClickListener(this);
         btnRemove.setOnClickListener(this);
+        nfcShare.setOnClickListener(this);
 
         // 创建一个Intent，将该Activity与Service进行连接
         mIntent = new Intent(ReceiveFileActivity.this, Wifip2pService.class);
@@ -67,6 +94,7 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
         startService(mIntent);
         // 绑定服务
         bindService(mIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     @Override
@@ -76,9 +104,51 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
                 createGroup();
                 break;
             case R.id.btn_remove:
-                removeGroup();
+                removeGroup(true);
+                break;
+            case R.id.nfc_share:
+                startNFC();
                 break;
         }
+    }
+
+    // fuck android  android is a piece of shit
+    public static String getMacAddr() {
+        try {
+            List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface nif : all) {
+                if (!nif.getName().equalsIgnoreCase("p2p0")) continue;
+
+                byte[] macBytes = nif.getHardwareAddress();
+                if (macBytes == null) {
+                    return "";
+                }
+
+                StringBuilder res1 = new StringBuilder();
+                for (byte b : macBytes) {
+                    res1.append(String.format("%02X:", b));
+                }
+
+                if (res1.length() > 0) {
+                    res1.deleteCharAt(res1.length() - 1);
+                }
+                return res1.toString();
+            }
+        } catch (Exception ex) {
+        }
+        return "02:00:00:00:00:00";
+    }
+
+    private void startNFC() {
+        Intent intent = new Intent(this, com.NFC.activity.WritingActivity.class);
+
+        if (mWifiP2pDevice != null && mWifiP2pDevice.deviceAddress != null) {
+            intent.putExtra("data", mWifiP2pDevice.deviceName);
+            startActivityForResult(intent, 20);//启动Activity
+        } else {
+            Toast.makeText(this, "尚未得知群主信息", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     /**
@@ -91,6 +161,7 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
             @Override
             public void onSuccess() {
                 Log.e(TAG, "创建群组成功");
+                nfcShare.setEnabled(true);
                 Toast.makeText(ReceiveFileActivity.this, "创建群组成功", Toast.LENGTH_SHORT).show();
             }
 
@@ -105,18 +176,23 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     /**
      * 移除组群
      */
-    public void removeGroup() {
+    public void removeGroup(boolean isShow) {
         mWifiP2pManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
                 Log.e(TAG, "移除组群成功");
-                Toast.makeText(ReceiveFileActivity.this, "移除组群成功", Toast.LENGTH_SHORT).show();
+                if(isShow){
+                    Toast.makeText(ReceiveFileActivity.this, "移除组群成功", Toast.LENGTH_SHORT).show();
+                }
+
             }
 
             @Override
             public void onFailure(int reason) {
                 Log.e(TAG, "移除组群失败");
-                Toast.makeText(ReceiveFileActivity.this, "移除组群失败,请创建组群重试", Toast.LENGTH_SHORT).show();
+                if(isShow){
+                    Toast.makeText(ReceiveFileActivity.this, "移除组群失败,请创建组群重试", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -157,6 +233,7 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     protected void onDestroy() {
         super.onDestroy();
         clear();
+        removeGroup(false);
     }
 
     /**
@@ -176,3 +253,4 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
         super.onConfigurationChanged(newConfig);
     }
 }
+
