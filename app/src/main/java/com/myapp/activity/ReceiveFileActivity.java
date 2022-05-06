@@ -22,7 +22,7 @@ import java.util.List;
 
 import com.myapp.ProgressDialog;
 import com.myapp.R;
-import com.myapp.Wifip2pService;
+import com.myapp.service.Wifip2pService;
 import com.myapp.socket.ReceiveSocket;
 
 /**

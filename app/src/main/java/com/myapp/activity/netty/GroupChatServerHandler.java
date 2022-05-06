@@ -1,6 +1,6 @@
 package com.myapp.activity.netty;
 
-import static com.myapp.utils.WifiService.ByteArrayToInt;
+import static com.myapp.service.WifiService.ByteArrayToInt;
 
 import android.os.Bundle;
 import android.os.Handler;

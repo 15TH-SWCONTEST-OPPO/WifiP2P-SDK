@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.myapp.utils;
+package com.myapp.service;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

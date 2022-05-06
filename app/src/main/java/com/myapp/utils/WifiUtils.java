@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 
 import com.myapp.WifiState;
+import com.myapp.service.WifiService;
 
 @SuppressLint("NewApi")
 public class WifiUtils {

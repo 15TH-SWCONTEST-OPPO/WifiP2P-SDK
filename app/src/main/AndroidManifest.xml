@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.myapp">
 
+    <uses-permission android:name="android.permission.BLUETOOTH"/> <!-- 蓝牙权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 震动权限 -->
     <uses-permission android:name="android.permission.CAMERA" /> <!-- 摄像头权限 -->
@@ -57,7 +59,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.myapp.Wifip2pService" />
+        <service android:name="com.myapp.service.Wifip2pService" />
 
         <activity android:name="com.myapp.activity.SendCameraActivity"
             android:configChanges="orientation|keyboardHidden|screenSize">

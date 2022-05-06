@@ -2,6 +2,7 @@ package com.myapp.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.media.projection.MediaProjection;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -77,7 +78,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.ACCESS_WIFI_STATE,
                 Manifest.permission.CHANGE_WIFI_MULTICAST_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN
         };
         if (EasyPermissions.hasPermissions(this, perms)) {
             //有权限
