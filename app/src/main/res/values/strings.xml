@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">WifiP2P</string>
+    <string name="client">&#xe614;</string>
+    <string name="server">&#xe726;</string>
+    <string name="input">&#xe626;</string>
+    <string name="output">&#xe6bd;</string>
+    <string name="qrcode">&#xf010a;</string>
+    <string name="nfc">&#xe6e2;</string>
+    <string name="pc">&#xe665;</string>
 </resources>

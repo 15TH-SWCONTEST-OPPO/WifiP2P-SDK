@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Android/env/SDK/platforms/android-28/data/res/layout/simple_list_item_1.xml" value="0.20989583333333334" />
+        <entry key="..\:/Android/platforms/android-30/data/res/layout/simple_list_item_1.xml" value="0.10914855072463768" />
         <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_main.xml" value="0.2296195652173913" />
         <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_receive_camera.xml" value="0.12552083333333333" />
         <entry key="..\:/oppoCup/Code/loop/WifiP2P/app/src/main/res/layout/activity_receive_file.xml" value="0.23641304347826086" />
@@ -35,6 +36,19 @@
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/menu_navigation.xml" value="0.23697916666666666" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/menu_receive_navigation.xml" value="0.18177083333333333" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/menu_send_navigation.xml" value="0.23697916666666666" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/drawable/border.xml" value="0.316" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_base.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_connect.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_main.xml" value="0.3480023161551824" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera_2.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera_drawer.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_scanner.xml" value="0.4125" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_send_file.xml" value="0.152" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/border.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/header.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/toolbar_main.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/toolbar_scanner.xml" value="0.2" />
       </map>
     </option>
   </component>

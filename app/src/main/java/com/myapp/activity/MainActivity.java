@@ -2,23 +2,34 @@ package com.myapp.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+
 import com.myapp.R;
 
 /**
  * Wifi P2P 技术并不会访问网络，但会使用到 Java socket 技术
- *
+ * <p>
  * 总结：
  * 1、声明权限
  * 1、清单文件注册权限
@@ -29,7 +40,7 @@ import com.myapp.R;
  * 7、客户端连接信息组群和服务端建立WiFip2p连接
  * 8、客户端通过socket发送文件到服务端serversocket服务端监听到端口后就会获取信息，写入文件。
  */
-public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks{
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     public static final String TAG = "MainActivity";
 
@@ -39,26 +50,70 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         setContentView(R.layout.activity_main);
         //申请文件读写权限
         requireSomePermission();
+        /*
+        * relative 布局
+        * */
+        RelativeLayout relativeLayout=(RelativeLayout)findViewById(R.id.relative);
+
+
+        /*
+         * icon图标
+         * */
+        // 加载字体文件
+        Typeface iconfont = Typeface.createFromAsset(getAssets(), "iconfont.ttf");
+        // client
+        TextView client = (TextView) findViewById(R.id.client);
+        client.setTypeface(iconfont);
+        // server
+        TextView server = (TextView) findViewById(R.id.server);
+        server.setTypeface(iconfont);
+        // input
+        TextView input = (TextView) findViewById(R.id.input);
+        input.setTypeface(iconfont);
+        // output
+        TextView output = (TextView) findViewById(R.id.output);
+        output.setTypeface(iconfont);
+        // qrcode
+        TextView qrcode = (TextView) findViewById(R.id.qrcode);
+        qrcode.setTypeface(iconfont);
+
+    }
+
+    /*
+    * 隐藏navigateBar
+    * */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        View decorView = getWindow().getDecorView();
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
     }
 
     public void sendFile(View v) {
-        startActivity(new Intent(this,SendFileActivity.class));
+        startActivity(new Intent(this, SendFileActivity.class));
     }
 
     public void receiveFile(View v) {
-        startActivity(new Intent(this,ReceiveFileActivity.class));
+        startActivity(new Intent(this, ReceiveFileActivity.class));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void sendCamera(View v){
-        startActivity(new Intent(this,SendCameraActivity.class));
+    public void sendCamera(View v) {
+        startActivity(new Intent(this, SendCameraActivity.class));
     }
 
-    public void receiveCamera(View v){
-        startActivity(new Intent(this,ReceiveCameraActivity.class));
+    public void receiveCamera(View v) {
+        startActivity(new Intent(this, ReceiveCameraActivity.class));
     }
 
-    public void scanCode(View v){
+    public void scanCode(View v) {
         startActivity(new Intent(this, com.dommy.qrcode.MainActivity.class));
     }
 
@@ -92,21 +147,24 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     /**
      * 权限申成功
+     *
      * @param i
      * @param list
      */
     @Override
     public void onPermissionsGranted(int i, @NonNull List<String> list) {
-        Log.e(TAG,"权限申成功");
+        Log.e(TAG, "权限申成功");
     }
 
     /**
      * 权限申请失败
+     *
      * @param i
      * @param list
      */
     @Override
     public void onPermissionsDenied(int i, @NonNull List<String> list) {
-        Log.e(TAG,"权限申请失败");
+        Log.e(TAG, "权限申请失败");
     }
+
 }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="?attr/colorPrimary"
+    android:background="#000000"
     app:contentInsetStart="0dip">
 
     <RelativeLayout
@@ -42,4 +42,4 @@
             android:text="相册"
             android:textColor="@android:color/white" />
     </RelativeLayout>
-</Toolbar>
+</LinearLayout>
