@@ -14,13 +14,6 @@
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_base.xml" value="0.25364583333333335" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_connect.xml" value="0.1578125" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_main.xml" value="0.264" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_main_nfc.xml" value="0.1640625" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_nfc.xml" value="0.24947916666666667" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_nfc2.xml" value="0.24947916666666667" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_nfc_receive.xml" value="0.11979166666666667" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_nfc_send.xml" value="0.11979166666666667" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_nfc_write.xml" value="0.24947916666666667" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_reading_writing.xml" value="0.1640625" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera.xml" value="0.264" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera_2.xml" value="0.264" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera_drawer.xml" value="0.18177083333333333" />
@@ -30,8 +23,6 @@
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_send_camera_2.xml" value="0.23697916666666666" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/activity_send_file.xml" value="0.16510416666666666" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/bage_hint.xml" value="0.23697916666666666" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/device_list.xml" value="0.19479166666666667" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/device_name.xml" value="0.19479166666666667" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/header.xml" value="0.23697916666666666" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/loading_connect.xml" value="0.25364583333333335" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/loading_progressba.xml" value="0.25364583333333335" />
@@ -40,12 +31,10 @@
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/progressbar.xml" value="0.196875" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/toolbar_main.xml" value="0.1578125" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/layout/toolbar_scanner.xml" value="0.20520833333333333" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/main.xml" value="0.1640625" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/menu_drawer_left.xml" value="0.23697916666666666" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/menu_navigation.xml" value="0.23697916666666666" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/menu_receive_navigation.xml" value="0.18177083333333333" />
         <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/menu_send_navigation.xml" value="0.23697916666666666" />
-        <entry key="..\:/oppoCup/Code/old/WifiP2P-SDK/app/src/main/res/menu/reading_writing.xml" value="0.1640625" />
       </map>
     </option>
   </component>

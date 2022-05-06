@@ -1,5 +1,18 @@
 <resources>
     <string name="app_name">WifiP2P</string>
+    <string name="client">&#xe614;</string>
+    <string name="server">&#xe726;</string>
+    <string name="input">&#xe626;</string>
+    <string name="output">&#xe6bd;</string>
+    <string name="qrcode">&#xf010a;</string>
+    <string name="nfc">&#xe6e2;</string>
+    <string name="pc">&#xe665;</string>
+    <string name="folder">&#xec17;</string>
+    <string name="cancelLink">&#xe65e;</string>
+    <string name="link">&#xe612;</string>
+    <string name="start">&#xea40;</string>
+    <string name="end">&#xe6ec;</string>
+
 
     <string name="action_settings">Settings</string>
     <string name="title">NFC P2P Communication</string>

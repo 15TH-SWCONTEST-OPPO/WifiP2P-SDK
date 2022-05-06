@@ -50,4 +50,6 @@ dependencies {
     //testCompile 'junit:junit:4.12'
     implementation 'pub.devrel:easypermissions:1.1.0'
     implementation 'io.netty:netty-all:5.0.0.Alpha2'
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.24'
 }

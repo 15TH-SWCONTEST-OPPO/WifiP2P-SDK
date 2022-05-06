@@ -1,45 +1,223 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:background="@mipmap/back"
-    tools:context="com.myapp.activity.MainActivity">
+    android:layout_height="match_parent">
 
-    <Button
+    <!--
+        背景
+    -->
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="多机位客户端"
-        android:onClick="sendCamera"/>
-    <Button
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="多机位服务端"
-        android:onClick="receiveCamera"/>
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" />
 
-    <Button
+    <!--
+        按钮
+    -->
+    <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="发送文件"
-        android:onClick="sendFile"/>
-    <Button
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="接收文件"
-        android:onClick="receiveFile"/>
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp"
+        app:alignItems="center"
+        app:flexDirection="row"
+        app:flexWrap="wrap"
+        app:justifyContent="space_between"
+        tools:context="com.myapp.activity.MainActivity"
+        tools:ignore="MissingClass">
 
-    <Button
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="扫码"
-        android:onClick="scanCode"/>
+        <!--
+            客户端
+        -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="#80000000"
+            android:onClick="sendCamera">
 
-</LinearLayout>
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="column">
+
+                <TextView
+                    android:id="@+id/client"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/client"
+                    android:textColor="#ffffff"
+                    android:textSize="200px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="客户端"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+        <!--
+            服务端
+        -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="#80000000"
+            android:onClick="receiveCamera">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="column">
+
+                <TextView
+                    android:id="@+id/server"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/server"
+                    android:textColor="#ffffff"
+                    android:textSize="200px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="服务端"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+        <!--
+            发送文件
+        -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="#80000000"
+            android:onClick="sendFile">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="column">
+
+                <TextView
+                    android:id="@+id/output"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/output"
+                    android:textColor="#ffffff"
+                    android:textSize="200px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="发送文件"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+        <!--
+            接收文件
+        -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="#80000000"
+            android:onClick="receiveFile">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="column">
+
+                <TextView
+                    android:id="@+id/input"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/input"
+                    android:textColor="#ffffff"
+                    android:textSize="200px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="接收文件"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+        <!--
+            扫码
+        -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="#80000000"
+            android:onClick="scanCode">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="column">
+
+                <TextView
+                    android:id="@+id/qrcode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pc"
+                    android:textColor="#ffffff"
+                    android:textSize="200px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="客户端连接"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</RelativeLayout>

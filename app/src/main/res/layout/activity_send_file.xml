@@ -1,66 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.myapp.activity.SendFileActivity">
+    android:layout_height="match_parent">
 
-    <HorizontalScrollView
+    <!--
+        背景
+    -->
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" />
+
+    <!--
+        按钮
+    -->
+    <com.google.android.flexbox.FlexboxLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp"
+        app:alignItems="center"
+        app:flexDirection="row"
+        app:flexWrap="wrap"
+        app:justifyContent="space_between"
+        tools:context="com.myapp.activity.MainActivity"
+        tools:ignore="MissingClass">
+
+        <!--
+            连接
+        -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <Button
-                android:id="@+id/file_btn_connectserver"
-                android:layout_width="120dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="20dp"
-                android:text="建立配对连接"/>
+            android:layout_margin="5dp"
+            android:background="@drawable/border"
+            android:padding="3dp">
 
-            <Button
-                android:id="@+id/file_btn_cancelconnect"
-                android:layout_width="120dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="20dp"
-                android:text="取消配对连接"/>
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#80000000"
+                android:padding="5dp"
+                app:alignItems="center"
+                app:flexDirection="row"
+                app:justifyContent="center">
 
-            <Button
-                android:id="@+id/file_btn_nfc"
-                android:layout_width="120dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="20dp"
-                android:text="通过nfc获取"/>
+                <TextView
+                    android:id="@+id/link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/link"
+                    android:textColor="#ffffff"
+                    android:textSize="80px" />
 
-            <Button
-                android:id="@+id/file_btn_chosefile"
-                android:layout_width="120dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="20dp"
-                android:text="选择文件发送"/>
+                <Button
+                    android:id="@+id/file_btn_connectserver"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:text="建立连接"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp" />
 
+            </com.google.android.flexbox.FlexboxLayout>
         </LinearLayout>
-    </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/border"
+            android:padding="3dp">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#80000000"
+                android:padding="5dp"
+                app:alignItems="center"
+                app:flexDirection="row"
+
+                app:justifyContent="center">
+
+                <TextView
+                    android:id="@+id/cancleLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cancelLink"
+                    android:textColor="#ffffff"
+                    android:textSize="80px" />
+
+                <Button
+                    android:id="@+id/file_btn_cancelconnect"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:text="断开连接"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp" />
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/border"
+            android:padding="3dp">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#80000000"
+                android:padding="5dp"
+                app:alignItems="center"
+                app:flexDirection="row"
+                app:justifyContent="center">
+
+                <TextView
+                    android:id="@+id/folder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/folder"
+                    android:textColor="#ffffff"
+                    android:textSize="80px" />
+
+                <Button
+                    android:id="@+id/file_btn_chosefile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:text="选择文件"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp" />
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/lv_device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</RelativeLayout>
 
 
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:textSize="14sp"
-        android:text="选择需要连接的设备："/>
-
-    <ListView
-        android:id="@+id/lv_device"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"/>
-
-
-
-</LinearLayout>

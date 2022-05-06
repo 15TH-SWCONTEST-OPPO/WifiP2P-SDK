@@ -4,11 +4,13 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +31,7 @@ import com.myapp.utils.Md5Util;
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button btnQrCode; // 扫码
+    private View btnQrCode; // 扫码
     private TextView tvResult; // 结果
 
     private String serverIP = null;
@@ -46,17 +48,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
+        /*
+         * relative 布局
+         * */
+        RelativeLayout relativeLayout=(RelativeLayout)findViewById(R.id.relative);
 
+
+        /*
+         * icon图标
+         * */
+        // 加载字体文件
+        Typeface iconfont = Typeface.createFromAsset(getAssets(), "iconfont.ttf");
+        // output
+        TextView output = (TextView) findViewById(R.id.output);
+        output.setTypeface(iconfont);
+        // qrcode
+        TextView qrcode = (TextView) findViewById(R.id.qrcode);
+        qrcode.setTypeface(iconfont);
         initView();
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        View decorView = getWindow().getDecorView();
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+    }
+
     private void initView() {
-        btnQrCode = (Button) findViewById(R.id.btn_qrcode);
-        Button btn_choose_file = (Button) findViewById(R.id.btn_choose_file);
+        btnQrCode = (View) findViewById(R.id.btn_qrcode);
+        View btn_choose_file = (View)findViewById(R.id.btn_choose_file);
         btn_choose_file.setOnClickListener(this);
         btnQrCode.setOnClickListener(this);
-
-        tvResult = (TextView) findViewById(R.id.txt_result);
     }
 
     // 开始扫码
@@ -111,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (requestCode == Constant.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(Constant.INTENT_EXTRA_KEY_QR_SCAN);
-            if (scanResult == null || scanResult.length() < 10) {
+            if(scanResult==null||scanResult.length()<10){
                 Toast.makeText(MainActivity.this, "二维码信息不正确", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -123,12 +153,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             boolean matches = pcData[0].matches("^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$");
             int parseInt = Integer.parseInt(pcData[1]);
-            boolean check = parseInt >= 0 && parseInt <= 65530;
-            if (!(matches && check)) {
+            boolean check = parseInt>=0&&parseInt<=65530;
+            if(!(matches&&check)){
                 Toast.makeText(MainActivity.this, "二维码信息不正确", Toast.LENGTH_SHORT).show();
                 return;
             }
-            serverIP = pcData[0];
+            serverIP =pcData[0];
             serverPort = parseInt;
             isServerEnable = true;
             tvResult.setText(scanResult);
@@ -148,8 +178,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Toast.makeText(MainActivity.this, "连接不存在", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        if (!isServerEnable) {
-                            Toast.makeText(MainActivity.this, "请检查是否获得信息", Toast.LENGTH_SHORT).show();
+                        if(!isServerEnable){
+                            Toast.makeText(MainActivity.this,"请检查是否获得信息",Toast.LENGTH_SHORT).show();
                             return;
                         }
                         String md5 = Md5Util.getMd5(file);

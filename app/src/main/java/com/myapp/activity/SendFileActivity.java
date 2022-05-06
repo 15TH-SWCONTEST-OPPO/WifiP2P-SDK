@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
@@ -27,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -43,7 +45,7 @@ import com.myapp.utils.Md5Util;
 
 /**
  * 发送文件界面
- * <p>
+ *
  * 1、搜索设备信息
  * 2、选择设备连接服务端组群信息
  * 3、选择要传输的文件路径
@@ -84,9 +86,9 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_file);
-        Button mBtnChoseFile = (Button) findViewById(R.id.file_btn_chosefile);
-        Button mBtnConnectServer = (Button) findViewById(R.id.file_btn_connectserver);
-        Button mBtnCancelConnect = (Button) findViewById(R.id.file_btn_cancelconnect);
+        View mBtnChoseFile = (View) findViewById(R.id.file_btn_chosefile);
+        View mBtnConnectServer = (View) findViewById(R.id.file_btn_connectserver);
+        View mBtnCancelConnect = (View) findViewById(R.id.file_btn_cancelconnect);
         Button btn_nfc = findViewById(R.id.file_btn_nfc);
         mTvDevice = (ListView) findViewById(R.id.lv_device);
 
@@ -95,6 +97,39 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         mBtnCancelConnect.setOnClickListener(this);
         btn_nfc.setOnClickListener(this);
         connectServer();
+
+        /*
+         * icon图标
+         * */
+        // 加载字体文件
+        Typeface iconfont = Typeface.createFromAsset(getAssets(), "iconfont.ttf");
+        // link
+        TextView link = (TextView) findViewById(R.id.link);
+        link.setTypeface(iconfont);
+        // cancelLink
+        TextView cancelLink = (TextView) findViewById(R.id.cancleLink);
+        cancelLink.setTypeface(iconfont);
+        // folder
+        TextView folder = (TextView) findViewById(R.id.folder);
+        folder.setTypeface(iconfont);
+    }
+
+    /*
+     * 隐藏navigateBar
+     * */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        View decorView = getWindow().getDecorView();
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -270,7 +305,6 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                             Toast.makeText(SendFileActivity.this, "连接不存在", Toast.LENGTH_SHORT).show();
                             return;
                         }
-
                         String md5 = Md5Util.getMd5(file);
                         FileBean fileBean = new FileBean(file.getPath(), file.length(), md5);
                         String hostAddress = mWifiP2pInfo.groupOwnerAddress.getHostAddress();
