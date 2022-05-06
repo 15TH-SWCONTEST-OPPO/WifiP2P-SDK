@@ -1,7 +1,5 @@
 package com.NFC.activity;
 
-import static com.myapp.utils.NFCUtils.mNfcAdapter;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -10,9 +8,6 @@ import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
-import android.nfc.Tag;
-import android.nfc.tech.IsoDep;
-import android.nfc.tech.NfcA;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,7 +16,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-import com.NFC.MainActivity;
 import com.NFC.utils.NFCUtils;
 import com.myapp.R;
 

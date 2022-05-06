@@ -4,9 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.View;
 
@@ -20,7 +22,7 @@ import com.myapp.R;
 
 /**
  * Wifi P2P 技术并不会访问网络，但会使用到 Java socket 技术
- *
+ * <p>
  * 总结：
  * 1、声明权限
  * 1、清单文件注册权限
@@ -31,7 +33,7 @@ import com.myapp.R;
  * 7、客户端连接信息组群和服务端建立WiFip2p连接
  * 8、客户端通过socket发送文件到服务端serversocket服务端监听到端口后就会获取信息，写入文件。
  */
-public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks{
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     public static final String TAG = "MainActivity";
 
@@ -44,32 +46,24 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     public void sendFile(View v) {
-        startActivity(new Intent(this,SendFileActivity.class));
+        startActivity(new Intent(this, SendFileActivity.class));
     }
 
     public void receiveFile(View v) {
-        startActivity(new Intent(this,ReceiveFileActivity.class));
+        startActivity(new Intent(this, ReceiveFileActivity.class));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void sendCamera(View v){
-        startActivity(new Intent(this,SendCameraActivity.class));
+    public void sendCamera(View v) {
+        startActivity(new Intent(this, SendCameraActivity.class));
     }
 
-    public void receiveCamera(View v){
-        startActivity(new Intent(this,ReceiveCameraActivity.class));
+    public void receiveCamera(View v) {
+        startActivity(new Intent(this, ReceiveCameraActivity.class));
     }
 
-    public void scanCode(View v){
+    public void scanCode(View v) {
         startActivity(new Intent(this, com.dommy.qrcode.MainActivity.class));
-    }
-
-    public void sendNFC(View view) {
-        startActivity(new Intent(this, com.NFC.SendActivity.class));
-    }
-
-    public void receiveNFC(View view) {
-        startActivity(new Intent(this, com.NFC.ReceiveActivity.class));
     }
 
     //申请权限
@@ -102,22 +96,24 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     /**
      * 权限申成功
+     *
      * @param i
      * @param list
      */
     @Override
     public void onPermissionsGranted(int i, @NonNull List<String> list) {
-        Log.e(TAG,"权限申成功");
+        Log.e(TAG, "权限申成功");
     }
 
     /**
      * 权限申请失败
+     *
      * @param i
      * @param list
      */
     @Override
     public void onPermissionsDenied(int i, @NonNull List<String> list) {
-        Log.e(TAG,"权限申请失败");
+        Log.e(TAG, "权限申请失败");
     }
 
 }

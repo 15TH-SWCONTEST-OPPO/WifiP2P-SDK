@@ -76,7 +76,7 @@ public class ReadingWritingActivity extends Activity {
         super.onResume();
 
         _enableNdefExchangeMode();
-        //_enableTagWriteMode();
+        _enableTagWriteMode();
     }
 
     private void _enableNdefExchangeMode() {
@@ -97,36 +97,11 @@ public class ReadingWritingActivity extends Activity {
 
         _intent = intent;
 
-//        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
-//            _readMessage();
-//        }
         _readMessage();
-//        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setMessage(R.string.title_alert_dialog)
-//                    .setPositiveButton(R.string.write_button_label,
-//                            new DialogInterface.OnClickListener() {
-//                                public void onClick(DialogInterface dialog, int id) {
-//                                    _writeMessage();
-//                                }
-//                            })
-//                    .setNegativeButton(R.string.read_button_label,
-//                            new DialogInterface.OnClickListener() {
-//                                public void onClick(DialogInterface dialog, int id) {
-//                                    _readMessage();
-//                                }
-//                            });
-//
-//            AlertDialog dialog = builder.create();
-//            dialog.show();
-//        }
     }
 
     private NdefMessage _getNdefMessage() {
-        EditText messageTextField = (EditText) findViewById(R.id.message_text_field);
-        String stringMessage = " " + messageTextField.getText().toString();
-
-        NdefMessage message = NFCUtils.getNewMessage(_MIME_TYPE, stringMessage.getBytes());
+        NdefMessage message = NFCUtils.getNewMessage(_MIME_TYPE, "你好".getBytes());
 
         return message;
     }
@@ -152,10 +127,5 @@ public class ReadingWritingActivity extends Activity {
         intent.putExtra("NAME", res);
         setResult(RESULT_OK, intent);
         finish();
-//        if (FormatUtils.checkMAC(res)) {
-//
-//        } else {
-//            Toast.makeText(this, "MAC格式不正确", Toast.LENGTH_SHORT).show();
-//        }
     }
 }

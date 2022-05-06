@@ -1,39 +1,25 @@
 package com.myapp.activity;
 
-import static com.myapp.utils.NFCUtils.mNfcAdapter;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.nfc.NdefMessage;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.List;
 
-import com.NFC.WriteActivity;
-import com.NFC.utils.NFCUtils;
-import com.google.gson.Gson;
 import com.myapp.ProgressDialog;
 import com.myapp.R;
 import com.myapp.Wifip2pService;

@@ -78,6 +78,8 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
     private Collection<WifiP2pDevice> mWifiP2pDeviceList;
     private int connectTime = 0;
 
+    private boolean showDevice = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +94,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         mBtnConnectServer.setOnClickListener(this);
         mBtnCancelConnect.setOnClickListener(this);
         btn_nfc.setOnClickListener(this);
+        connectServer();
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -110,6 +113,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                 mDialog.setCancelable(false);
                 mDialog.setContentView(R.layout.loading_progressba);
                 //搜索设备
+                showDevice = true;
                 connectServer();
                 break;
             case R.id.file_btn_cancelconnect:
@@ -172,7 +176,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                     SystemClock.sleep(1000);
 
                     if (mWifiP2pInfo == null || mWifiP2pInfo.groupOwnerAddress == null) {
-                        if (connectTime >= 2) {
+                        if (connectTime >= 3) {
                             connectTime = 0;
                             mDialog.dismiss();
                             Toast.makeText(SendFileActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
@@ -210,7 +214,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onSuccess() {
                 // WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION 广播，此时就可以调用 requestPeers 方法获取设备列表信息
-                if(isShow) {
+                if (isShow) {
                     Toast.makeText(SendFileActivity.this, "移除成功", Toast.LENGTH_SHORT).show();
                 }
                 Log.e(TAG, "取消成功");
@@ -218,7 +222,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
 
             @Override
             public void onFailure(int reasonCode) {
-                if (isShow){
+                if (isShow) {
                     Toast.makeText(SendFileActivity.this, "移除失败", Toast.LENGTH_SHORT).show();
                 }
                 Log.e(TAG, "取消失败");
@@ -237,6 +241,10 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void readIPFromNFC() {
+        // 不显示设备列表
+        showDevice = false;
+        // 开始搜索设备
+        connectServer();
         Intent intent = new Intent(this, ReadingWritingActivity.class);
         startActivityForResult(intent, 20);
     }
@@ -275,8 +283,8 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                 deviceName = data.getStringExtra("NAME");
                 needConnect = true;
                 //showDevice = false;
-                for (WifiP2pDevice device:mWifiP2pDeviceList){
-                    if(device.deviceName.equals(deviceName)){
+                for (WifiP2pDevice device : mWifiP2pDeviceList) {
+                    if (device.deviceName.equals(deviceName)) {
                         connect(device);
                         break;
                     }
@@ -297,10 +305,13 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         }
 
         //进度条消失
-        if(mDialog!=null) {
+        if (mDialog != null) {
             mDialog.dismiss();
         }
-        showDeviceInfo();
+
+        if (showDevice) {
+            showDeviceInfo();
+        }
     }
 
     /**

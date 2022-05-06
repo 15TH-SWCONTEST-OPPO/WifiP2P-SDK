@@ -103,54 +103,6 @@
 
         <activity android:name="com.google.zxing.activity.CaptureActivity"/>
 
-        <activity android:name="com.NFC.ReceiveActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-<!--                <data android:mimeType="application/vnd.com.example.android.beam"/>-->
-            </intent-filter>
-
-        </activity>
-
-        <activity android:name="com.NFC.SendActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-<!--                <data android:mimeType="application/vnd.com.example.android.beam"/>-->
-            </intent-filter>
-
-        </activity>
-
-        <activity android:name="com.NFC.WriteActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="application/vnd.com.example.android.beam"/>
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-        </activity>
-
-        <activity android:name="com.NFC.ReadActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="application/vnd.com.example.android.beam"/>
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/com.example.androidrecipes.beamtext" />
-            </intent-filter>
-
-        </activity>
-
         <activity android:name="com.NFC.activity.ReadActivity"/>
         <activity android:name="com.NFC.activity.WritingActivity"/>
         <activity android:name="com.NFC.activity.ReadingWritingActivity"/>
