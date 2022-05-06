@@ -17,17 +17,17 @@
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:background="@android:color/black"
-        app:title="发现属于你的美"
         android:textAlignment="center"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
 
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        app:title="发现属于你的美" />
 
 
-<!--    <Button-->
-<!--        android:id="@+id/btn_pop"-->
-<!--        android:text="弹出 PopupWindow"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content" />-->
+    <!--    <Button-->
+    <!--        android:id="@+id/btn_pop"-->
+    <!--        android:text="弹出 PopupWindow"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content" />-->
 
 
     <androidx.drawerlayout.widget.DrawerLayout
@@ -36,7 +36,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -44,38 +44,38 @@
             <SurfaceView
                 android:id="@+id/surfaceView"
                 android:layout_width="fill_parent"
-                android:layout_height="500dp" />
+                android:layout_height="wrap_content" />
 
-<!--            <androidx.appcompat.widget.Toolbar-->
-<!--                android:id="@+id/main_menu_ebook"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                app:navigationIcon="@mipmap/navicate" />-->
+            <!--            <androidx.appcompat.widget.Toolbar-->
+            <!--                android:id="@+id/main_menu_ebook"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                app:navigationIcon="@mipmap/navicate" />-->
 
-<!--            <TextView-->
-<!--                android:id="@+id/bookContent"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content" />-->
+            <!--            <TextView-->
+            <!--                android:id="@+id/bookContent"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content" />-->
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/black">
-                <ImageButton
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:background="#00000000">
+                <TextView
                     android:id="@+id/new_btn_record"
-                    android:src="@mipmap/start_record"/>
-<!--                <Button-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:id="@+id/new_btn_record"-->
-<!--                    android:background="@drawable/btn_record"/>-->
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:textColor="#ffffff"
+                    android:textSize="200px"
+                    android:text="@string/start"
+                    />
             </LinearLayout>
-        </LinearLayout>
+        </RelativeLayout>
 
 
-<!--        app:headerLayout="@layout/header"-->
+        <!--        app:headerLayout="@layout/header"-->
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigation_view"
@@ -86,10 +86,7 @@
             app:menu="@menu/menu_send_navigation" />
 
 
-
     </androidx.drawerlayout.widget.DrawerLayout>
-
-
 
 
     <HorizontalScrollView
@@ -191,7 +188,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp" />
-
 
 
 </LinearLayout><!--    -->

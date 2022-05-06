@@ -43,10 +43,19 @@
         <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera.xml" value="0.31302083333333336" />
         <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera_2.xml" value="0.31302083333333336" />
         <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_receive_camera_drawer.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_receive_file.xml" value="0.31302083333333336" />
         <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_scanner.xml" value="0.4125" />
-        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_send_file.xml" value="0.152" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_send_camera.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_send_camera_2.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_send_file.xml" value="0.264" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/activity_video_test.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/bage_hint.xml" value="0.31302083333333336" />
         <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/border.xml" value="0.31302083333333336" />
         <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/header.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/loading_connect.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/loading_progressba.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/popwin_layout.xml" value="0.31302083333333336" />
+        <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/progressbar.xml" value="0.31302083333333336" />
         <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/toolbar_main.xml" value="0.31302083333333336" />
         <entry key="..\:/project/WifiP2P-SDK/app/src/main/res/layout/toolbar_scanner.xml" value="0.2" />
       </map>

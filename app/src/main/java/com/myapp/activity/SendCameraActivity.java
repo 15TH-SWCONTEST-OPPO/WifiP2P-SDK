@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.camera2.CameraAccessException;
@@ -175,7 +176,7 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
 
     private Toolbar toolbar;
 
-    private ImageButton newBtn;
+    private TextView newBtn;
 
     private CVClientUtils cvClientUtils;
 
@@ -218,6 +219,14 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
 
         cvClientUtils = new CVClientUtils(SendCameraActivity.this);
         cvClientUtils.connect2AIUnitServer();
+
+        /*
+         * icon图标
+         * */
+        // 加载字体文件
+        Typeface iconfont = Typeface.createFromAsset(getAssets(), "iconfont.ttf");
+        // client
+        newBtn.setTypeface(iconfont);
     }
 
     private void initDrawer() {
@@ -395,7 +404,8 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         newBtn.setEnabled(false);
         mediaRecorder.start();
         SystemClock.sleep(300);
-        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.stop_record));
+//        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.stop_record));
+        newBtn.setText(getResources().getString(R.string.end));
 
         isRecording = true;
         Toast.makeText(SendCameraActivity.this, "开始录制", Toast.LENGTH_SHORT).show();
@@ -429,8 +439,8 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         SystemClock.sleep(300);
         isRecording = false;
         Toast.makeText(SendCameraActivity.this, "停止录制", Toast.LENGTH_SHORT).show();
-        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.start_record));
-
+//        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.start_record));
+        newBtn.setText(getResources().getString(R.string.start));
         newBtn.setEnabled(true);
 //        try {
 //
