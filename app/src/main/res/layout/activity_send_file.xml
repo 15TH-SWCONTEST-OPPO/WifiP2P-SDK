@@ -144,6 +144,42 @@
             </com.google.android.flexbox.FlexboxLayout>
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/border"
+            android:padding="3dp">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#80000000"
+                android:padding="5dp"
+                app:alignItems="center"
+                app:flexDirection="row"
+                app:justifyContent="center">
+
+                <TextView
+                    android:id="@+id/nfc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/folder"
+                    android:textColor="#ffffff"
+                    android:textSize="80px" />
+
+                <Button
+                    android:id="@+id/file_btn_nfc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:text="选择文件"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp" />
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+
         <ListView
             android:id="@+id/lv_device"
             android:layout_width="match_parent"

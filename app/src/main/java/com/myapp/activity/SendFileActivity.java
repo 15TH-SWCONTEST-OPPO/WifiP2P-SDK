@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.NFC.activity.ReadingWritingActivity;
+import com.NFC.utils.NFCUtils;
 import com.myapp.Constant;
 import com.myapp.FileBean;
 import com.myapp.R;
@@ -82,6 +83,8 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
 
     private boolean showDevice = false;
 
+    private boolean isNfcEnabled;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +100,8 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         mBtnCancelConnect.setOnClickListener(this);
         btn_nfc.setOnClickListener(this);
         connectServer();
-
+        // 判断NFC是否可用
+        isNfcEnabled = NFCUtils.isNfcEnabled(this);
         /*
          * icon图标
          * */
@@ -111,6 +115,9 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         cancelLink.setTypeface(iconfont);
         // folder
         TextView folder = (TextView) findViewById(R.id.folder);
+        folder.setTypeface(iconfont);
+        // nfc
+        TextView nfc = (TextView) findViewById(R.id.nfc);
         folder.setTypeface(iconfont);
     }
 
@@ -155,6 +162,10 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                 cancelConnect(true);
                 break;
             case R.id.file_btn_nfc:
+                if(!isNfcEnabled){
+                    Toast.makeText(SendFileActivity.this,"NFC不可用",Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 readIPFromNFC();
 
                 break;

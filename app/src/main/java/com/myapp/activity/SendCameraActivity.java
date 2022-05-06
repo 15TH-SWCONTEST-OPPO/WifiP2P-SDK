@@ -853,7 +853,7 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
     };
 
     private void setUpImageReader() {
-        imageReader = ImageReader.newInstance(400, 300, ImageFormat.JPEG, 3);
+        imageReader = ImageReader.newInstance(400, 300, ImageFormat.JPEG, 10);
         imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
 
 

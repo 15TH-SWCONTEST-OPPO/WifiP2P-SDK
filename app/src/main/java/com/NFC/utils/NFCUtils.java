@@ -1,5 +1,6 @@
 package com.NFC.utils;
 
+import android.content.Context;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -10,6 +11,7 @@ import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -19,6 +21,19 @@ import java.util.List;
 public class NFCUtils {
     public static NdefMessage getNewMessage(String mimeType, byte[] payload) {
         return new NdefMessage(new NdefRecord[]{getNewRecord(mimeType, payload)});
+    }
+
+    public static boolean isNfcEnabled(Context context){
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(context);
+
+        if (nfcAdapter == null) {
+            return false;
+        }
+
+        if (!nfcAdapter.isEnabled()) {
+            return false;
+        }
+        return true;
     }
 
     private static NdefRecord getNewRecord(String mimeType, byte[] payload) {
