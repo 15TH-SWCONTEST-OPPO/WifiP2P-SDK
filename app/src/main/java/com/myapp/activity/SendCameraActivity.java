@@ -407,6 +407,7 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         SystemClock.sleep(300);
 //        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.stop_record));
         newBtn.setText(getResources().getString(R.string.end));
+        newBtn.setTextColor(0xffff0000);
 
         isRecording = true;
         Toast.makeText(SendCameraActivity.this, "开始录制", Toast.LENGTH_SHORT).show();
@@ -443,6 +444,7 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
 //        newBtn.setImageDrawable(getResources().getDrawable(R.mipmap.start_record));
         newBtn.setText(getResources().getString(R.string.start));
         newBtn.setEnabled(true);
+        newBtn.setTextColor(0xffffffff);
 //        try {
 //
 //        }catch (RuntimeException e){
