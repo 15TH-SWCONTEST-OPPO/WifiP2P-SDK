@@ -2,8 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.myapp">
 
-    <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- 蓝牙权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!-- 声明权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/> <!-- 蓝牙权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 震动权限 -->
     <uses-permission android:name="android.permission.CAMERA" /> <!-- 摄像头权限 -->
@@ -92,22 +95,36 @@
                 android:resource="@xml/nfc_tech_filter" />
         </activity>
         <activity
-            android:name=".activity.ReceiveCameraActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity
-            android:name=".activity.SendFileActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity
-            android:name=".activity.ReceiveFileActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity
-            android:name=".activity.BaseActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name="com.dommy.qrcode.MainActivity" />
-        <activity android:name="com.google.zxing.activity.CaptureActivity" />
-        <activity android:name="com.NFC.activity.ReadActivity" />
-        <activity android:name="com.NFC.activity.WritingActivity" />
-        <activity android:name="com.NFC.activity.ReadingWritingActivity" />
+            android:name="com.myapp.activity.ReceiveCameraActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            />
+
+        <activity android:name="com.myapp.activity.SendFileActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+
+        <activity android:name="com.myapp.activity.ReceiveFileActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+
+        <activity android:name="com.myapp.activity.BaseActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            />
+
+        <activity android:name="com.dommy.qrcode.MainActivity"/>
+
+        <activity android:name="com.google.zxing.activity.CaptureActivity"/>
+
+        <activity android:name="com.NFC.activity.ReadActivity"/>
+        <activity android:name="com.NFC.activity.WritingActivity"/>
+        <activity android:name="com.NFC.activity.ReadingWritingActivity"/>
+        <activity android:name="com.myapp.Record.MediaRecordActivity"/>
+
+        <activity android:name="com.sendclient.MainActivity"/>
+        <activity android:name="com.sendclient.BluetoothActivity"/>
+        <!-- 声明属性 -->
+        <service android:name="com.sendclient.MediaRecordService"
+            android:foregroundServiceType="mediaProjection">
+        </service>
+
     </application>
 
 </manifest>
