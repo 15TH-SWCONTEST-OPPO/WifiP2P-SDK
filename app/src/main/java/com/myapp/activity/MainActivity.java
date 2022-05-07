@@ -3,7 +3,6 @@ package com.myapp.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.media.projection.MediaProjection;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -11,20 +10,14 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import com.NFC.activity.ReadActivity;
 import com.myapp.R;
 
 /**
@@ -117,11 +110,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     public void scanCode(View v){
-        startActivity(new Intent(this, com.dommy.qrcode.MainActivity.class));
+        startActivity(new Intent(this, com.myapp.qrcode.MainActivity.class));
     }
 
     public void record(View view) {
-        startActivity(new Intent(this, com.sendclient.MainActivity.class));
+        startActivity(new Intent(this, com.myapp.sendclient.MainActivity.class));
     }
 
     //申请权限

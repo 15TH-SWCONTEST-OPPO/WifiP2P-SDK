@@ -109,19 +109,19 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             />
 
-        <activity android:name="com.dommy.qrcode.MainActivity"/>
+        <activity android:name=".qrcode.MainActivity"/>
 
-        <activity android:name="com.google.zxing.activity.CaptureActivity"/>
+        <activity android:name=".zxing.activity.CaptureActivity"/>
 
-        <activity android:name="com.NFC.activity.ReadActivity"/>
-        <activity android:name="com.NFC.activity.WritingActivity"/>
-        <activity android:name="com.NFC.activity.ReadingWritingActivity"/>
+        <activity android:name=".NFC.activity.ReadActivity"/>
+        <activity android:name=".NFC.activity.WritingActivity"/>
+        <activity android:name=".NFC.activity.ReadingWritingActivity"/>
         <activity android:name="com.myapp.Record.MediaRecordActivity"/>
 
-        <activity android:name="com.sendclient.MainActivity"/>
-        <activity android:name="com.sendclient.BluetoothActivity"/>
+        <activity android:name=".sendclient.MainActivity"/>
+        <activity android:name=".sendclient.BluetoothActivity"/>
         <!-- 声明属性 -->
-        <service android:name="com.sendclient.MediaRecordService"
+        <service android:name=".sendclient.MediaRecordService"
             android:foregroundServiceType="mediaProjection">
         </service>
 

@@ -20,7 +20,7 @@ import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.List;
 
-import com.NFC.utils.NFCUtils;
+import com.myapp.NFC.utils.NFCUtils;
 import com.myapp.ProgressDialog;
 import com.myapp.R;
 import com.myapp.service.Wifip2pService;
@@ -139,7 +139,7 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     }
 
     private void startNFC() {
-        Intent intent = new Intent(this, com.NFC.activity.WritingActivity.class);
+        Intent intent = new Intent(this, com.myapp.NFC.activity.WritingActivity.class);
 
         if (mWifiP2pDevice != null && mWifiP2pDevice.deviceAddress != null) {
             intent.putExtra("data", mWifiP2pDevice.deviceName);
