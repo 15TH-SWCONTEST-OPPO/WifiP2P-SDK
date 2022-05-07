@@ -77,6 +77,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         TextView qrcode = (TextView) findViewById(R.id.qrcode);
         qrcode.setTypeface(iconfont);
 
+        // record
+        TextView record = (TextView) findViewById(R.id.record);
+        record.setTypeface(iconfont);
     }
 
     /*
@@ -115,6 +118,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     public void scanCode(View v){
         startActivity(new Intent(this, com.dommy.qrcode.MainActivity.class));
+    }
+
+    public void record(View view) {
+        startActivity(new Intent(this, com.sendclient.MainActivity.class));
     }
 
     //申请权限
@@ -166,4 +173,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     public void onPermissionsDenied(int i, @NonNull List<String> list) {
         Log.e(TAG,"权限申请失败");
     }
+
+
 }

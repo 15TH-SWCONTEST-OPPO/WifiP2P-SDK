@@ -20,6 +20,7 @@ import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.List;
 
+import com.NFC.utils.NFCUtils;
 import com.myapp.ProgressDialog;
 import com.myapp.R;
 import com.myapp.service.Wifip2pService;
@@ -44,6 +45,10 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     private AlertDialog alertDialog;
 
     private Button nfcShare;
+
+    private boolean isNfcEnabled;
+
+    private boolean isGroupFormed = false;
     // 创建一个服务连接，与写好的WifiService进行连接
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -73,7 +78,8 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
         btnCreate.setOnClickListener(this);
         btnRemove.setOnClickListener(this);
         nfcShare.setOnClickListener(this);
-
+        // 判断NFC是否可用
+        isNfcEnabled = NFCUtils.isNfcEnabled(this);
         // 创建一个Intent，将该Activity与Service进行连接
         mIntent = new Intent(ReceiveFileActivity.this, Wifip2pService.class);
         // 开启服务
@@ -93,6 +99,13 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
                 removeGroup(true);
                 break;
             case R.id.nfc_share:
+                if (!isNfcEnabled) {
+                    Toast.makeText(ReceiveFileActivity.this, "NFC不可用", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(!isGroupFormed){
+                    Toast.makeText(ReceiveFileActivity.this,"群组未创建",Toast.LENGTH_SHORT).show();
+                }
                 startNFC();
                 break;
         }
@@ -148,12 +161,14 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
             public void onSuccess() {
                 Log.e(TAG, "创建群组成功");
                 nfcShare.setEnabled(true);
+                isGroupFormed = true;
                 Toast.makeText(ReceiveFileActivity.this, "创建群组成功", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(int reason) {
                 Log.e(TAG, "创建群组失败: " + reason);
+                isGroupFormed = false;
                 Toast.makeText(ReceiveFileActivity.this, "创建群组失败,请移除已有的组群或者连接同一WIFI重试", Toast.LENGTH_SHORT).show();
             }
         });
@@ -167,16 +182,17 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
             @Override
             public void onSuccess() {
                 Log.e(TAG, "移除组群成功");
-                if(isShow){
+                isGroupFormed = false;
+                if (isShow) {
                     Toast.makeText(ReceiveFileActivity.this, "移除组群成功", Toast.LENGTH_SHORT).show();
                 }
-
+                nfcShare.setEnabled(false);
             }
 
             @Override
             public void onFailure(int reason) {
                 Log.e(TAG, "移除组群失败");
-                if(isShow){
+                if (isShow) {
                     Toast.makeText(ReceiveFileActivity.this, "移除组群失败,请创建组群重试", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -226,6 +242,9 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
      * 释放资源
      */
     private void clear() {
+        if(mProgressDialog!=null){
+            mProgressDialog.dismiss();
+        }
         if (serviceConnection != null) {
             unbindService(serviceConnection);
         }

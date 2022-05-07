@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.myapp">
 
+    <!-- 声明权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.BLUETOOTH"/> <!-- 蓝牙权限 -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
@@ -108,6 +111,15 @@
         <activity android:name="com.NFC.activity.ReadActivity"/>
         <activity android:name="com.NFC.activity.WritingActivity"/>
         <activity android:name="com.NFC.activity.ReadingWritingActivity"/>
+        <activity android:name="com.myapp.Record.MediaRecordActivity"/>
+
+        <activity android:name="com.sendclient.MainActivity"/>
+        <activity android:name="com.sendclient.BluetoothActivity"/>
+        <!-- 声明属性 -->
+        <service android:name="com.sendclient.MediaRecordService"
+            android:foregroundServiceType="mediaProjection">
+        </service>
+
     </application>
 
 </manifest>
