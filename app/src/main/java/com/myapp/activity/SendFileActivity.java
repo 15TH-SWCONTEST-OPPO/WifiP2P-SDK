@@ -118,7 +118,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         folder.setTypeface(iconfont);
         // nfc
         TextView nfc = (TextView) findViewById(R.id.nfc);
-        folder.setTypeface(iconfont);
+        nfc.setTypeface(iconfont);
     }
 
     /*

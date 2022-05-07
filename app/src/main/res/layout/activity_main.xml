@@ -211,7 +211,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
-                    android:text="客户端连接"
+                    android:text="电脑连接"
                     android:textColor="#ffffff"
                     android:textSize="22dp"></Button>
 
