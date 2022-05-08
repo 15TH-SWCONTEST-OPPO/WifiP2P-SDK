@@ -90,7 +90,6 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
          * */
         // 加载字体文件
         nfcShare = findViewById(R.id.nfc_share);
-        nfcShare.setEnabled(false);
         btnCreate.setOnClickListener(this);
         btnRemove.setOnClickListener(this);
         nfcShare.setOnClickListener(this);
@@ -135,12 +134,14 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
                 removeGroup(true);
                 break;
             case R.id.nfc_share:
+                Log.d(TAG, "onClick: isNfcEnabled "+isNfcEnabled+" isGroupFormed "+isGroupFormed);
                 if (!isNfcEnabled) {
                     Toast.makeText(ReceiveFileActivity.this, "NFC不可用", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (!isGroupFormed) {
                     Toast.makeText(ReceiveFileActivity.this, "群组未创建", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 startNFC();
                 break;
@@ -263,7 +264,6 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
                 if (isShow) {
                     Toast.makeText(ReceiveFileActivity.this, "移除组群成功", Toast.LENGTH_SHORT).show();
                 }
-                nfcShare.setEnabled(false);
             }
 
             @Override
