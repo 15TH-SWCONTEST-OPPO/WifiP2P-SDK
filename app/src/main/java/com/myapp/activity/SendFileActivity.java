@@ -116,6 +116,11 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         // nfc
         TextView nfc = (TextView) findViewById(R.id.nfc);
         nfc.setTypeface(iconfont);
+
+        for (WifiP2pDevice device : mListDevice) {
+            Log.d(TAG, "onCreate: " + device.deviceName);
+            addText(device.deviceName);
+        }
     }
 
     /*
@@ -221,7 +226,9 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                     if (mWifiP2pInfo == null || mWifiP2pInfo.groupOwnerAddress == null) {
                         if (connectTime >= 3) {
                             connectTime = 0;
-                            mDialog.dismiss();
+                            if(mDialog!=null){
+                                mDialog.dismiss();
+                            }
                             Toast.makeText(SendFileActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
                         } else {
                             connectTime++;
@@ -345,24 +352,8 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
             if (!mListDeviceName.contains(device.deviceName) && !mListDevice.contains(device)) {
                 mListDeviceName.add("设备：" + device.deviceName + "----" + device.deviceAddress);
                 mListDevice.add(device);
-                TextView nowt = new TextView(SendFileActivity.this);
-                nowt.setLayoutParams(new LinearLayout.LayoutParams(200,200));
-                nowt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int idx = -1;
-                        for (int i = 0; i < mTvDevice.getChildCount(); i++) {
-                            if (nowt == mTvDevice.getChildAt(i)) {
-                                idx = i;
-                                break;
-                            }
-                        }
-                        WifiP2pDevice wifiP2pDevice = mListDevice.get(idx);
-                        connect(wifiP2pDevice);
-                    }
-                });
-                nowt.setText("设备：" + device.deviceName + "----" + device.deviceAddress);
-                mTvDevice.addView(nowt);
+                Log.d(TAG, "onPeersInfo: " + "设备：" + device.deviceName + "----" + device.deviceAddress);
+                addText(device.deviceName);
             }
         }
 
@@ -373,6 +364,53 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
 
     }
 
+
+    private void addText(String text) {
+        ViewGroup container;
+        container=new LinearLayout(SendFileActivity.this);
+        /*
+        * icon图标
+        * */
+        TextView icon = new TextView(SendFileActivity.this);
+        Typeface iconfont = Typeface.createFromAsset(getAssets(), "iconfont.ttf");
+        icon.setText(getResources().getString(R.string.phone));
+        icon.setTypeface(iconfont);
+        icon.setTextColor(0xffffffff);
+        icon.setTextSize(30);
+
+        /*
+        * 当前设备信息
+        * */
+        TextView nowt = new TextView(SendFileActivity.this);
+        nowt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        nowt.setText(text);
+        nowt.setTextSize(30);
+        nowt.setTextColor(0xffffffff);
+
+        /*
+        * 容器中添加元素
+        * */
+        container.addView(icon);
+        container.addView(nowt);
+        /*
+        * 绑定点击
+        * */
+        container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int idx = -1;
+                for (int i = 0; i < mTvDevice.getChildCount(); i++) {
+                    if (nowt == ((ViewGroup)mTvDevice.getChildAt(i)).getChildAt(1)) {
+                        idx = i;
+                        break;
+                    }
+                }
+                WifiP2pDevice wifiP2pDevice = mListDevice.get(idx);
+                connect(wifiP2pDevice);
+            }
+        });
+        mTvDevice.addView(container);
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

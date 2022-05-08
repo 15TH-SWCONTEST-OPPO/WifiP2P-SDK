@@ -181,12 +181,21 @@
         </LinearLayout>
 
         <LinearLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border"
+            android:padding="2dp"
+            >
+        <com.google.android.flexbox.FlexboxLayout
+            app:flexDirection="column"
+            android:background="#80000000"
             android:id="@+id/lv_device"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="#ffffff"
-            android:orientation="horizontal" />
+            android:minHeight="40px"
+            android:orientation="horizontal"/>
+        </LinearLayout>
 
     </com.google.android.flexbox.FlexboxLayout>
 
