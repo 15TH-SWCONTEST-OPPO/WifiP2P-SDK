@@ -57,33 +57,24 @@ public class MediaRecordService extends Service {
 
         public void paused() {
             // 置为null时,表示暂停
-            if(virtualDisplay!=null){
+            if (virtualDisplay != null) {
                 virtualDisplay.setSurface(null);
             }
         }
 
         public void stop() {
             isRecord = false;
-
-            virtualDisplay.setSurface(null);
-            virtualDisplay.release();
-            if(videoEncoder!=null){
-                videoEncoder.stop();
-                videoEncoder.release();
+            if(virtualDisplay!=null){
+                virtualDisplay.setSurface(null);
+                virtualDisplay.release();
             }
-
-            if(mediaMuxer!=null){
-                mediaMuxer.stop();
-                mediaMuxer.release();
-            }
-
 
             notificationManager.cancel(123123);
         }
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
         public void resume() {
-            if(virtualDisplay!=null){
+            if (virtualDisplay != null) {
                 virtualDisplay.setSurface(surface);
             }
         }

@@ -35,7 +35,7 @@ import com.myapp.R;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     private static final int REQUEST_BLUETOOTH_ENABLE = 100;
     private BluetoothUtil mBt;
@@ -78,11 +78,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         // 创建蓝牙工具类
         mBt = new BluetoothUtil(this);
         mInput = (EditText) findViewById(R.id.input);
-//        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
-//
-//        mSurfaceHolder = surfaceView.getHolder();
-//        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-//        mSurfaceHolder.addCallback(this);
         imageView = (ImageView) findViewById(R.id.imageView);
         initBlue();
         HandlerThread handlerThread = new HandlerThread("Recorder");
@@ -104,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 Image image = null;
                 try {
                     image = reader.acquireLatestImage();
-                    if (image!=null) {
+                    if (image != null) {
                         Image.Plane[] planes = image.getPlanes();
                         ByteBuffer buffer = planes[0].getBuffer();
                         int width = image.getWidth();
@@ -120,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         if (bitmap != null) {
                             // TODO 处理图片
                             imageView.setImageBitmap(bitmap);
-                            mBt.send(compressImage(bitmap,20),"video");
+                            mBt.send(compressImage(bitmap, 20), "video");
                             //bitmap.recycle();
                         }
                         image.close();
@@ -234,54 +229,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-
-//        try {
-//            mCamera = Camera.open();
-//            Camera.Parameters mPara = mCamera.getParameters();
-//            List<Camera.Size> pictureSizes = mCamera.getParameters().getSupportedPictureSizes();
-//            List<Camera.Size> previewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-//
-//            int previewSizeIndex = -1;
-//            Camera.Size psize;
-//            int height_sm = 999999;
-//            int width_sm = 999999;
-//            //获取设备最小分辨率图片，图片越清晰，传输越卡
-//            for (int i = 0; i < previewSizes.size(); i++) {
-//                psize = previewSizes.get(i);
-//                if (psize.height <= height_sm && psize.width <= width_sm) {
-//                    previewSizeIndex = i;
-//                    height_sm = psize.height;
-//                    width_sm = psize.width;
-//                }
-//            }
-//
-//            if (previewSizeIndex != -1) {
-//                mWidth = previewSizes.get(previewSizeIndex).width;
-//                mHeight = previewSizes.get(previewSizeIndex).height;
-//                mPara.setPreviewSize(mWidth, mHeight);
-//            }
-//            mCamera.setParameters(mPara);
-//            mCamera.setPreviewDisplay(mSurfaceHolder);
-//            mCamera.startPreview();
-//
-//            size = mCamera.getParameters().getPreviewSize();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-
-    }
-
     //蓝牙搜索配对
     public void bluetooth(View view) {
         if (mBt.getServiceState() == BluetoothState.STATE_CONNECTED) {
@@ -316,16 +263,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             return;
         }
         mark = false;//关闭视频发送
-        mCamera.takePicture(null, null, new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] bytes, Camera camera) {
-                mBt.send(bytes, "photo");
-                mCamera.startPreview();
-            }
-        });
     }
 
-    public void sendVideo(View view){
+    public void sendVideo(View view) {
         if (!isBluetoothConnnect) {
             Toast.makeText(this, "请连接蓝牙", Toast.LENGTH_SHORT).show();
             return;
@@ -336,32 +276,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         startActivityForResult(screenCaptureIntent, 10012);
     }
 
-    //发送视频 其实也是发送一张一张的图片
-//    public void sendVideo(View view) {
-//        if (!isBluetoothConnnect) {
-//            Toast.makeText(this, "请连接蓝牙", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        mark = true;
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                mCamera.setPreviewCallback(new Camera.PreviewCallback() {
-//                    @Override
-//                    public void onPreviewFrame(byte[] data, Camera camera) {
-//                        count++;
-//                        Camera.Size size = camera.getParameters().getPreviewSize();
-//                        final YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);
-//                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//                        image.compressToJpeg(new Rect(0, 0, mWidth, mHeight), 100, stream);
-//                        byte[] imageBytes = stream.toByteArray();
-//                        mBt.send(imageBytes, "video");
-//                        if (count % 2 == 0 && mark) {
-//                            mBt.send(imageBytes, "video");
-//                        }
-//                    }
-//                });
-//            }
-//        }).start();
-//    }
+    public void disconnect(View view) {
+        mBt.disconnect();
+        mBt.stopService();
+    }
+
+    public void closeScreen(View view) {
+        if (binder != null) {
+            binder.stop();
+        }
+    }
 }

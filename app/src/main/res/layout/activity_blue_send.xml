@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.rejointech.sendclient.MainActivity">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -69,6 +68,24 @@
                 android:layout_weight="1"
                 android:text="视频"
                 android:onClick="sendVideo"
+                android:textColor="#000"
+                android:textSize="18sp"/>
+
+            <Button
+                android:onClick="disconnect"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="断开连接"
+                android:textColor="#000"
+                android:textSize="18sp"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="关闭录屏"
+                android:onClick="closeScreen"
                 android:textColor="#000"
                 android:textSize="18sp"/>
         </LinearLayout>

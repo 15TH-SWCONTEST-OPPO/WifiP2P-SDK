@@ -224,7 +224,10 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                     if (mWifiP2pInfo == null || mWifiP2pInfo.groupOwnerAddress == null) {
                         if (connectTime >= 3) {
                             connectTime = 0;
-                            mDialog.dismiss();
+                            if(mDialog!=null){
+                                mDialog.dismiss();
+                            }
+
                             Toast.makeText(SendFileActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
                         } else {
                             connectTime++;

@@ -161,7 +161,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             serverIP =pcData[0];
             serverPort = parseInt;
             isServerEnable = true;
-            tvResult.setText(scanResult);
+            Toast.makeText(MainActivity.this, "读取信息成功", Toast.LENGTH_SHORT).show();
+            //tvResult.setText(scanResult);
         }
         if (requestCode == 10) {
             if (resultCode == RESULT_OK) {
