@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,7 +52,7 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
 
     private AlertDialog alertDialog;
 
-    private Button nfcShare;
+    private LinearLayout nfcShare;
 
     private boolean isNfcEnabled;
 
@@ -80,13 +82,32 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receive_file);
-        Button btnCreate = (Button) findViewById(R.id.btn_create);
-        Button btnRemove = (Button) findViewById(R.id.btn_remove);
+        LinearLayout btnCreate = (LinearLayout) findViewById(R.id.btn_create);
+        LinearLayout btnRemove = (LinearLayout) findViewById(R.id.btn_remove);
+
+        /*
+         * icon图标
+         * */
+        // 加载字体文件
         nfcShare = findViewById(R.id.nfc_share);
         nfcShare.setEnabled(false);
         btnCreate.setOnClickListener(this);
         btnRemove.setOnClickListener(this);
         nfcShare.setOnClickListener(this);
+        /*
+         * icon图标
+         * */
+        // 加载字体文件
+        Typeface iconfont = Typeface.createFromAsset(getAssets(), "iconfont.ttf");
+        // group
+        TextView group = (TextView) findViewById(R.id.group);
+        group.setTypeface(iconfont);
+        // cancel
+        TextView delGroup = (TextView) findViewById(R.id.delGroup);
+        delGroup.setTypeface(iconfont);
+        // nfc
+        TextView nfc = (TextView) findViewById(R.id.nfc);
+        nfc.setTypeface(iconfont);
         // 判断NFC是否可用
         isNfcEnabled = NFCUtils.isNfcEnabled(this);
         // 创建一个Intent，将该Activity与Service进行连接
