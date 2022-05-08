@@ -7,13 +7,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.net.NetworkInterface;
@@ -49,6 +55,9 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
     private boolean isNfcEnabled;
 
     private boolean isGroupFormed = false;
+
+    private TextView deviceName;
+
     // 创建一个服务连接，与写好的WifiService进行连接
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -86,8 +95,14 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
         startService(mIntent);
         // 绑定服务
         bindService(mIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-
+        /*
+         * 设备名
+         * */
+        deviceName = (TextView) findViewById(R.id.device_name);
+        if (mWifiP2pDevice != null && mWifiP2pDevice.deviceName != null)
+            deviceName.setText(mWifiP2pDevice.deviceName);
     }
+
 
     @Override
     public void onClick(View view) {
@@ -103,8 +118,8 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
                     Toast.makeText(ReceiveFileActivity.this, "NFC不可用", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(!isGroupFormed){
-                    Toast.makeText(ReceiveFileActivity.this,"群组未创建",Toast.LENGTH_SHORT).show();
+                if (!isGroupFormed) {
+                    Toast.makeText(ReceiveFileActivity.this, "群组未创建", Toast.LENGTH_SHORT).show();
                 }
                 startNFC();
                 break;
@@ -150,6 +165,45 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
 
     }
 
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (msg.what==1){
+                String device = (String) msg.obj;
+                deviceName.setText(device);
+            }
+        }
+    };
+
+    @Override
+    public void onDeviceInfo(WifiP2pDevice wifiP2pDevice) {
+        super.onDeviceInfo(wifiP2pDevice);
+        Message msg = new Message();
+        msg.what  =1;
+        msg.obj = wifiP2pDevice.deviceName;
+        handler.sendMessage(msg);
+    }
+
+
+    /*
+     * 隐藏navigateBar
+     * */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        View decorView = getWindow().getDecorView();
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+    }
+
     /**
      * 创建组群，等待连接
      */
@@ -163,6 +217,8 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
                 nfcShare.setEnabled(true);
                 isGroupFormed = true;
                 Toast.makeText(ReceiveFileActivity.this, "创建群组成功", Toast.LENGTH_SHORT).show();
+                if (mWifiP2pDevice != null && mWifiP2pDevice.deviceName != null)
+                    deviceName.setText(mWifiP2pDevice.deviceName);
             }
 
             @Override
@@ -242,7 +298,7 @@ public class ReceiveFileActivity extends BaseActivity implements ReceiveSocket.P
      * 释放资源
      */
     private void clear() {
-        if(mProgressDialog!=null){
+        if (mProgressDialog != null) {
             mProgressDialog.dismiss();
         }
         if (serviceConnection != null) {
