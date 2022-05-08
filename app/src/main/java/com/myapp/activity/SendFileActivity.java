@@ -23,11 +23,10 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,8 +34,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.NFC.activity.ReadingWritingActivity;
-import com.NFC.utils.NFCUtils;
+import com.myapp.NFC.activity.ReadingWritingActivity;
+import com.myapp.NFC.utils.NFCUtils;
 import com.myapp.Constant;
 import com.myapp.FileBean;
 import com.myapp.R;
@@ -46,7 +45,7 @@ import com.myapp.utils.Md5Util;
 
 /**
  * 发送文件界面
- *
+ * <p>
  * 1、搜索设备信息
  * 2、选择设备连接服务端组群信息
  * 3、选择要传输的文件路径
@@ -56,7 +55,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
 
     private static final String TAG = "SendFileActivity";
 
-    private ListView mTvDevice;
+    private ViewGroup mTvDevice;
     private ArrayList<String> mListDeviceName = new ArrayList();
     private ArrayList<WifiP2pDevice> mListDevice = new ArrayList<>();
     private AlertDialog mDialog;
@@ -93,7 +92,7 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         View mBtnConnectServer = (View) findViewById(R.id.file_btn_connectserver);
         View mBtnCancelConnect = (View) findViewById(R.id.file_btn_cancelconnect);
         Button btn_nfc = findViewById(R.id.file_btn_nfc);
-        mTvDevice = (ListView) findViewById(R.id.lv_device);
+        mTvDevice = (ViewGroup) findViewById(R.id.lv_device);
 
         mBtnChoseFile.setOnClickListener(this);
         mBtnConnectServer.setOnClickListener(this);
@@ -118,7 +117,12 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
         folder.setTypeface(iconfont);
         // nfc
         TextView nfc = (TextView) findViewById(R.id.nfc);
-        folder.setTypeface(iconfont);
+        nfc.setTypeface(iconfont);
+
+        for (WifiP2pDevice device : mListDevice) {
+            Log.d(TAG, "onCreate: " + device.deviceName);
+            addText(device.deviceName);
+        }
     }
 
     /*
@@ -162,8 +166,8 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
                 cancelConnect(true);
                 break;
             case R.id.file_btn_nfc:
-                if(!isNfcEnabled){
-                    Toast.makeText(SendFileActivity.this,"NFC不可用",Toast.LENGTH_SHORT).show();
+                if (!isNfcEnabled) {
+                    Toast.makeText(SendFileActivity.this, "NFC不可用", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 readIPFromNFC();
@@ -345,10 +349,14 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
     public void onPeersInfo(Collection<WifiP2pDevice> wifiP2pDeviceList) {
         super.onPeersInfo(wifiP2pDeviceList);
         mWifiP2pDeviceList = wifiP2pDeviceList;
+
+
         for (WifiP2pDevice device : wifiP2pDeviceList) {
             if (!mListDeviceName.contains(device.deviceName) && !mListDevice.contains(device)) {
                 mListDeviceName.add("设备：" + device.deviceName + "----" + device.deviceAddress);
                 mListDevice.add(device);
+                Log.d(TAG, "onPeersInfo: " + "设备：" + device.deviceName + "----" + device.deviceAddress);
+                addText(device.deviceName);
             }
         }
 
@@ -357,24 +365,54 @@ public class SendFileActivity extends BaseActivity implements View.OnClickListen
             mDialog.dismiss();
         }
 
-        if (showDevice) {
-            showDeviceInfo();
-        }
     }
 
-    /**
-     * 展示设备信息
-     */
-    private void showDeviceInfo() {
-        ArrayAdapter<String> adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, mListDeviceName);
-        mTvDevice.setAdapter(adapter);
-        mTvDevice.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+    private void addText(String text) {
+        ViewGroup container;
+        container=new LinearLayout(SendFileActivity.this);
+        /*
+        * icon图标
+        * */
+        TextView icon = new TextView(SendFileActivity.this);
+        Typeface iconfont = Typeface.createFromAsset(getAssets(), "iconfont.ttf");
+        icon.setText(getResources().getString(R.string.phone));
+        icon.setTypeface(iconfont);
+        icon.setTextColor(0xffffffff);
+        icon.setTextSize(30);
+
+        /*
+        * 当前设备信息
+        * */
+        TextView nowt = new TextView(SendFileActivity.this);
+        nowt.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        nowt.setText(text);
+        nowt.setTextSize(30);
+        nowt.setTextColor(0xffffffff);
+
+        /*
+        * 容器中添加元素
+        * */
+        container.addView(icon);
+        container.addView(nowt);
+        /*
+        * 绑定点击
+        * */
+        container.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                WifiP2pDevice wifiP2pDevice = mListDevice.get(i);
+            public void onClick(View v) {
+                int idx = -1;
+                for (int i = 0; i < mTvDevice.getChildCount(); i++) {
+                    if (nowt == ((ViewGroup)mTvDevice.getChildAt(i)).getChildAt(1)) {
+                        idx = i;
+                        break;
+                    }
+                }
+                WifiP2pDevice wifiP2pDevice = mListDevice.get(idx);
                 connect(wifiP2pDevice);
             }
         });
+        mTvDevice.addView(container);
     }
 
     @Override
