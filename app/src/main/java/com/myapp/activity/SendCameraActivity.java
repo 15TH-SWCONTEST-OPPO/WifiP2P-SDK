@@ -713,6 +713,14 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
                 @Override
                 public void onOpened(CameraDevice camera) {
                     Log.i(TAG, "onOpened");
+                    try {
+                        CaptureRequest.Builder builder=camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+                        builder.set(CaptureRequest.CONTROL_AE_MODE,1);
+                        builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                        Log.d(TAG, "onOpened: builder changed");
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
                     mCameraDevice = camera;
                     createCameraPreview(camera);
                 }

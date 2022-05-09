@@ -229,6 +229,23 @@ public class ReceiveCameraActivity extends BaseActivity {
         });
     }
 
+    /*
+     * 隐藏navigateBar
+     * */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        View decorView = getWindow().getDecorView();
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+    }
+
     @SuppressLint("HandlerLeak")
     private void beauty() {
         if (beautyPath == null) {
@@ -289,7 +306,7 @@ public class ReceiveCameraActivity extends BaseActivity {
             @Override
             public void onDeviceConnected(String name) {
                 ImageView imageView = new ImageView(ReceiveCameraActivity.this);
-                imageView.setLayoutParams(new LinearLayout.LayoutParams(400, 300));
+                imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
