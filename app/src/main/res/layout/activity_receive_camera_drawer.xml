@@ -27,13 +27,7 @@
         <!--
             图片预览
         -->
-        <ImageView
-            android:id="@+id/camera_photo"
-            android:layout_width="200dp"
-            android:layout_height="140dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            />
+
 
         <androidx.drawerlayout.widget.DrawerLayout
             android:id="@+id/drawer_layout_receive"
@@ -71,6 +65,21 @@
                 app:menu="@menu/menu_receive_navigation" />
 
         </androidx.drawerlayout.widget.DrawerLayout>
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:rotation="90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/camera_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+
+            />
+        </LinearLayout>
     </RelativeLayout>
 
 </LinearLayout>

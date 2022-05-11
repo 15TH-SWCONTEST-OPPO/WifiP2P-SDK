@@ -48,6 +48,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.android.material.navigation.NavigationView;
 import com.myapp.Constant;
@@ -82,9 +83,11 @@ public class ReceiveCameraActivity extends BaseActivity {
     private boolean isConnected = false;
     private boolean isGroupFormed = false;
     private boolean isServerStarted = false;
+    // 存储ip地址到在数组中index的映射
     private Map<String, Integer> viewMap;
 
-    private Map<String, Boolean> recordState;
+    // 存储地址到录制状态的映射
+    private Map<String, Boolean> recordState = new HashMap<>();
 
     private NettyUtils nettyUtils;
     private GridView imageViews;
@@ -141,10 +144,70 @@ public class ReceiveCameraActivity extends BaseActivity {
         } else if (command.equals(Constant.STARTRECORD)) {
             // 记录所连接的设备的录制状态
             recordState.put(selectedName, true);
+            int idx = viewMap.get(selectedName);
+            myDevice.get(idx).setStatus(2);
+            //viewMap.put(name, imageViews.getChildCount() - 1);
+            mAdapter = new MyAdapter<receiveCameraShow>(myDevice, R.layout.receive_camera_item) {
+                @Override
+                public void bindView(ViewHolder holder, receiveCameraShow obj) {
+                    holder.setDeviceName(R.id.device_name, obj.getDeviceName());
+                    holder.setStatusText(R.id.status_text, obj.getStatus());
+//                            viewMap.put(name,holder.getItemPosition());
+                    holder.setImageResource(R.id.image, obj.getVideo());
+                    holder.setOnClickListener(R.id.image, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // 获取到地址到设备名的映射
+                            Map<String, String> address2Name = GroupChatServerHandler.address2Name;
+
+                            for (String str : viewMap.keySet()) {
+
+                                if (viewMap.get(str) == holder.getItemPosition()) {
+                                    selectedName = str;
+                                    // 找到设备名
+                                    break;
+                                }
+                            }
+                            Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + obj.getDeviceName(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            };
+            imageViews.setAdapter(mAdapter);
             nettyUtils.sendCommand(selectedName, Constant.STARTRECORD.getBytes(), "text");
         } else if (command.equals(Constant.STOPRECORD)) {
             // 记录所连接的设备的录制状态
             recordState.put(selectedName, false);
+            int idx = viewMap.get(selectedName);
+            myDevice.get(idx).setStatus(1);
+            //viewMap.put(name, imageViews.getChildCount() - 1);
+            mAdapter = new MyAdapter<receiveCameraShow>(myDevice, R.layout.receive_camera_item) {
+                @Override
+                public void bindView(ViewHolder holder, receiveCameraShow obj) {
+                    holder.setDeviceName(R.id.device_name, obj.getDeviceName());
+                    holder.setStatusText(R.id.status_text, obj.getStatus());
+//                            viewMap.put(name,holder.getItemPosition());
+                    holder.setImageResource(R.id.image, obj.getVideo());
+                    holder.setOnClickListener(R.id.image, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // 获取到地址到设备名的映射
+                            Map<String, String> address2Name = GroupChatServerHandler.address2Name;
+
+                            for (String str : viewMap.keySet()) {
+
+                                if (viewMap.get(str) == holder.getItemPosition()) {
+                                    selectedName = str;
+                                    // 找到设备名
+                                    break;
+                                }
+                            }
+                            Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + obj.getDeviceName(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            };
+            imageViews.setAdapter(mAdapter);
             nettyUtils.sendCommand(selectedName, Constant.STOPRECORD.getBytes(), "text");
         } else if (command.equals(Constant.HIGHQUALITY)) {
             nettyUtils.sendCommand(selectedName, Constant.HIGHQUALITY.getBytes(), "text");
@@ -340,39 +403,33 @@ public class ReceiveCameraActivity extends BaseActivity {
                  * */
                 // 如果读取不到设备名
                 myDevice.add(new receiveCameraShow(imageView, deviceName[0] == null ? "未知设备" : deviceName[0], 0));
+                int size = myDevice.size();
+                viewMap.put(name, size - 1);
                 mAdapter = new MyAdapter<receiveCameraShow>(myDevice, R.layout.receive_camera_item) {
                     @Override
                     public void bindView(ViewHolder holder, receiveCameraShow obj) {
                         holder.setDeviceName(R.id.device_name, obj.getDeviceName());
                         int itemPosition = holder.getItemPosition();
-                        viewMap.put(name,itemPosition);
+//                        viewMap.put(name,itemPosition);
 //                        viewMap.put()
                         holder.setImageResource(R.id.image, imageView);
                         holder.setStatusText(R.id.status_text, obj.getStatus());
                         holder.setOnClickListener(R.id.image, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                int idx = -1;
-                                // 遍历所有连接的设备，找到当前点击的设备对应的index
-                                for (int i = 0; i < myDevice.size(); i++) {
-                                    if (imageView == myDevice.get(i).getVideo()) {
-                                        idx = i;
-                                        break;
-                                    }
-                                }
                                 // 获取到地址到设备名的映射
                                 Map<String, String> address2Name = GroupChatServerHandler.address2Name;
 
                                 for (String str : viewMap.keySet()) {
                                     //
-                                    if (viewMap.get(str) == idx) {
+                                    if (viewMap.get(str) == holder.getItemPosition()) {
                                         selectedName = str;
+                                        Log.d(TAG, "onClick: str: " + str);
                                         // 找到设备名
-                                        deviceName[0] = GroupChatServerHandler.address2Name.get(str);
                                         break;
                                     }
                                 }
-                                Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + selectedName, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + obj.getDeviceName(), Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -385,8 +442,43 @@ public class ReceiveCameraActivity extends BaseActivity {
             @Override
             public void onDeviceDisconnected(String name) {
                 if (viewMap.containsKey(name)) {
+                    // 获得到当前的索引
                     int index = viewMap.get(name);
-                    imageViews.removeViewAt(index);
+                    for (String address : viewMap.keySet()) {
+                        // 大于待删除的索引都减一
+                        Integer tmp = viewMap.get(address);
+                        if (tmp > index) {
+                            viewMap.put(address, tmp - 1);
+                        }
+                    }
+                    myDevice.remove(index);
+                    mAdapter = new MyAdapter<receiveCameraShow>(myDevice, R.layout.receive_camera_item) {
+                        @Override
+                        public void bindView(ViewHolder holder, receiveCameraShow obj) {
+                            ImageView imageView = obj.getVideo();
+                            holder.setStatusText(R.id.status_text, obj.getStatus());
+                            holder.setDeviceName(R.id.device_name, obj.getDeviceName());
+                            holder.setOnClickListener(R.id.image, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    // 获取到地址到设备名的映射
+                                    Map<String, String> address2Name = GroupChatServerHandler.address2Name;
+
+                                    for (String str : viewMap.keySet()) {
+                                        //
+                                        if (viewMap.get(str) == holder.getItemPosition()) {
+                                            selectedName = str;
+                                            Log.d(TAG, "onClick: str: " + str);
+                                            // 找到设备名
+                                            break;
+                                        }
+                                    }
+                                    Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + obj.getDeviceName(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    };
+                    imageViews.setAdapter(mAdapter);
                 }
             }
 
@@ -422,8 +514,9 @@ public class ReceiveCameraActivity extends BaseActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    myDevice.get(myDeviceIdx).setVideo(imageView);
-                    photoView.setImageBitmap(bitmap);
+                    ImageView showImg = findViewById(R.id.camera_photo);
+                    showImg.setLayoutParams(new LinearLayout.LayoutParams(250, 400));
+                    showImg.setImageBitmap(bitmap);
                     //imageView.setImageBitmap(bitmap);
                 } else if (message.equals("video") && data.length != 0) {
                     Matrix matrix = new Matrix();
@@ -434,17 +527,17 @@ public class ReceiveCameraActivity extends BaseActivity {
 //                    newBitmap.setWidth(400);
 //                    newBitmap.setHeight(300);
                     imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                    imageView.setBackgroundColor(0x00000000);
                     imageView.setImageBitmap(newBitmap);
-                    Log.d(TAG, "onDataReceived: idx: "+idx);
+                    Log.d(TAG, "onDataReceived: idx: " + idx);
                     myDevice.get(idx).setDeviceName(GroupChatServerHandler.address2Name.get(name));
                     myDevice.get(idx).setVideo(imageView);
-                    myDevice.get(idx).setStatus(2);
                     mAdapter = new MyAdapter<receiveCameraShow>(myDevice, R.layout.receive_camera_item) {
                         @Override
                         public void bindView(ViewHolder holder, receiveCameraShow obj) {
                             holder.setDeviceName(R.id.device_name, obj.getDeviceName());
                             holder.setImageResource(R.id.image, obj.getVideo());
-                            viewMap.put(name,holder.getItemPosition());
+//                            viewMap.put(name,holder.getItemPosition());
                             holder.setStatusText(R.id.status_text, obj.getStatus());
                             holder.setOnClickListener(R.id.image, new View.OnClickListener() {
                                 @Override
@@ -456,7 +549,7 @@ public class ReceiveCameraActivity extends BaseActivity {
                                         //
                                         if (viewMap.get(str) == holder.getItemPosition()) {
                                             selectedName = str;
-                                        Log.d(TAG, "onClick: str: "+str);
+                                            Log.d(TAG, "onClick: str: " + str);
                                             // 找到设备名
                                             break;
                                         }
@@ -478,12 +571,11 @@ public class ReceiveCameraActivity extends BaseActivity {
                         public void bindView(ViewHolder holder, receiveCameraShow obj) {
                             holder.setDeviceName(R.id.device_name, obj.getDeviceName());
                             holder.setStatusText(R.id.status_text, obj.getStatus());
-                            viewMap.put(name,holder.getItemPosition());
+//                            viewMap.put(name,holder.getItemPosition());
                             holder.setImageResource(R.id.image, obj.getVideo());
                             holder.setOnClickListener(R.id.image, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
                                     // 获取到地址到设备名的映射
                                     Map<String, String> address2Name = GroupChatServerHandler.address2Name;
 
