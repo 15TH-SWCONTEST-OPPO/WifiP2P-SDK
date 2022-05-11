@@ -6,9 +6,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="#ff000000"
     android:orientation="vertical"
     tools:context="com.myapp.activity.ReceiveCameraActivity">
+
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_receive"
@@ -19,49 +20,57 @@
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:title="发现属于你的美" />
 
-    <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/drawer_layout_receive"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="left"
-        android:orientation="vertical">
+        android:background="@android:color/transparent">
+        <!--
+            图片预览
+        -->
+        <ImageView
+            android:id="@+id/camera_photo"
+            android:layout_width="200dp"
+            android:layout_height="140dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            />
 
-        <LinearLayout
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:id="@+id/drawer_layout_receive"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
             android:orientation="vertical">
 
-            <!--
-                相机预览
-            -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <!--
+                    相机预览
+                -->
 
 
                 <GridView
                     android:id="@+id/ll_group"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:numColumns="2"
                     android:background="#ffffff"
+                    android:numColumns="2"
                     android:orientation="horizontal"></GridView>
 
-            <!--
-                图片预览
-            -->
-            <!--            <ImageView-->
-            <!--                android:id="@+id/camera_photo"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="match_parent" />-->
 
+            </LinearLayout>
 
-        </LinearLayout>
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/navigation_view_receive"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                app:menu="@menu/menu_receive_navigation" />
 
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/navigation_view_receive"
-            android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="left"
-            app:menu="@menu/menu_receive_navigation" />
-
-    </androidx.drawerlayout.widget.DrawerLayout>
+        </androidx.drawerlayout.widget.DrawerLayout>
+    </RelativeLayout>
 
 </LinearLayout>

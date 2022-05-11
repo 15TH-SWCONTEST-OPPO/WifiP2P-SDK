@@ -25,7 +25,7 @@ public class NettyClient {
         this.mHandler = handler;
     }
 
-    public void run(String host, int port) throws InterruptedException {
+    public void run(String host, int port, String deviceName) throws InterruptedException {
         group = new NioEventLoopGroup();
 
         try {
@@ -52,6 +52,7 @@ public class NettyClient {
             Channel channel = channelFuture.channel();
             System.out.println("-------" + channel.localAddress() + "--------");
             channel.writeAndFlush("你好");
+            send(deviceName.getBytes(), "address");
         } catch (InterruptedException e) {
             System.out.println(e);
         }
@@ -97,6 +98,10 @@ public class NettyClient {
         } else if (str.equals("video")) {
             for (int i = 0; i < 4; i++) {
                 headerInfo[10 + i] = (byte) 2;
+            }
+        } else if (str.equals("address")) {
+            for (int i = 0; i < 4; i++) {
+                headerInfo[10 + i] = (byte) 3;
             }
         }
 

@@ -33,23 +33,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.android.material.navigation.NavigationView;
 import com.myapp.Constant;
+import com.myapp.MyAdapter;
 import com.myapp.ProgressDialog;
 import com.myapp.R;
 import com.myapp.Wifip2pCameraService;
+import com.myapp.activity.netty.GroupChatServerHandler;
+import com.myapp.receiveCameraShow;
 import com.myapp.utils.FilePathUtils;
 import com.myapp.utils.MeiTuAIUtil;
 import com.myapp.utils.NettyState;
@@ -76,8 +83,11 @@ public class ReceiveCameraActivity extends BaseActivity {
     private boolean isGroupFormed = false;
     private boolean isServerStarted = false;
     private Map<String, Integer> viewMap;
+
+    private Map<String, Boolean> recordState;
+
     private NettyUtils nettyUtils;
-    private ViewGroup imageViews;
+    private GridView imageViews;
 
     private String selectedName = "None";
 
@@ -86,6 +96,10 @@ public class ReceiveCameraActivity extends BaseActivity {
     private Toolbar toolbar;
 
     private String beautyPath = null;
+    private BaseAdapter mAdapter = null;
+
+    private ArrayList<receiveCameraShow> myDevice;
+    private int realViewNumber = 0;
 
     //@RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -94,6 +108,9 @@ public class ReceiveCameraActivity extends BaseActivity {
         setContentView(R.layout.activity_receive_camera_drawer);
         imageViews = findViewById(R.id.ll_group);
 
+        // 创建一个列表，用于动态存储连接到的设备
+        myDevice = new ArrayList<receiveCameraShow>();
+
         nettyUtils = new NettyUtils();
         nettyUtils.setUpService();
 
@@ -101,10 +118,6 @@ public class ReceiveCameraActivity extends BaseActivity {
 
         initWifi();
         initView();
-
-
-
-
     }
 
 
@@ -126,8 +139,12 @@ public class ReceiveCameraActivity extends BaseActivity {
         } else if (command.equals(Constant.DISCONNECT)) {
             nettyUtils.sendCommand(selectedName, Constant.DISCONNECT.getBytes(), "text");
         } else if (command.equals(Constant.STARTRECORD)) {
+            // 记录所连接的设备的录制状态
+            recordState.put(selectedName, true);
             nettyUtils.sendCommand(selectedName, Constant.STARTRECORD.getBytes(), "text");
         } else if (command.equals(Constant.STOPRECORD)) {
+            // 记录所连接的设备的录制状态
+            recordState.put(selectedName, false);
             nettyUtils.sendCommand(selectedName, Constant.STOPRECORD.getBytes(), "text");
         } else if (command.equals(Constant.HIGHQUALITY)) {
             nettyUtils.sendCommand(selectedName, Constant.HIGHQUALITY.getBytes(), "text");
@@ -177,9 +194,8 @@ public class ReceiveCameraActivity extends BaseActivity {
             @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                //安卓
-                //Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
-
+                // 安卓
+                // Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
                 switch (menuItem.getItemId()) {
                     case R.id.create_group:
                         removeGroup(false);
@@ -243,7 +259,8 @@ public class ReceiveCameraActivity extends BaseActivity {
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
     }
 
     @SuppressLint("HandlerLeak")
@@ -282,12 +299,13 @@ public class ReceiveCameraActivity extends BaseActivity {
 
     private void stopNetty() {
 //        if (!isServerStarted) {
+
 //            Toast.makeText(ReceiveCameraActivity.this, "服务未开启", Toast.LENGTH_SHORT).show();
 //            return;
 //        }
-        if(!isServerStarted){
+        if (!isServerStarted) {
             Toast.makeText(ReceiveCameraActivity.this, "服务未开启", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(ReceiveCameraActivity.this, "服务已关闭", Toast.LENGTH_SHORT).show();
         }
         isServerStarted = false;
@@ -305,36 +323,70 @@ public class ReceiveCameraActivity extends BaseActivity {
         nettyUtils.setNettyConnectionListener(new NettyUtils.NettyConnectionListener() {
             @Override
             public void onDeviceConnected(String name) {
-                ImageView imageView = new ImageView(ReceiveCameraActivity.this);
-                imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
-                imageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int idx = -1;
-                        for (int i = 0; i < imageViews.getChildCount(); i++) {
-                            if (imageView == imageViews.getChildAt(i)) {
-                                idx = i;
-                                break;
-                            }
-                        }
+                /*
+                 * 设备名称
+                 * */
+                final String[] deviceName = new String[1];
 
-                        for (String str : viewMap.keySet()) {
-                            if (viewMap.get(str) == idx) {
-                                selectedName = str;
-                                break;
+                /*
+                 * 相机预览
+                 * */
+                // 动态创建ImageView
+                ImageView imageView = new ImageView(ReceiveCameraActivity.this);
+                // 设置参数
+                imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                /*
+                 * 添加cameraShow
+                 * */
+                // 如果读取不到设备名
+                myDevice.add(new receiveCameraShow(imageView, deviceName[0] == null ? "未知设备" : deviceName[0], 0));
+                mAdapter = new MyAdapter<receiveCameraShow>(myDevice, R.layout.receive_camera_item) {
+                    @Override
+                    public void bindView(ViewHolder holder, receiveCameraShow obj) {
+                        holder.setDeviceName(R.id.device_name, obj.getDeviceName());
+                        int itemPosition = holder.getItemPosition();
+                        viewMap.put(name,itemPosition);
+//                        viewMap.put()
+                        holder.setImageResource(R.id.image, imageView);
+                        holder.setStatusText(R.id.status_text, obj.getStatus());
+                        holder.setOnClickListener(R.id.image, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                int idx = -1;
+                                // 遍历所有连接的设备，找到当前点击的设备对应的index
+                                for (int i = 0; i < myDevice.size(); i++) {
+                                    if (imageView == myDevice.get(i).getVideo()) {
+                                        idx = i;
+                                        break;
+                                    }
+                                }
+                                // 获取到地址到设备名的映射
+                                Map<String, String> address2Name = GroupChatServerHandler.address2Name;
+
+                                for (String str : viewMap.keySet()) {
+                                    //
+                                    if (viewMap.get(str) == idx) {
+                                        selectedName = str;
+                                        // 找到设备名
+                                        deviceName[0] = GroupChatServerHandler.address2Name.get(str);
+                                        break;
+                                    }
+                                }
+                                Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + selectedName, Toast.LENGTH_SHORT).show();
                             }
-                        }
-                        Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + selectedName, Toast.LENGTH_SHORT).show();
+                        });
                     }
-                });
-                imageViews.addView(imageView);
-                viewMap.put(name, imageViews.getChildCount() - 1);
+                };
+                imageViews.setAdapter(mAdapter);
+                //viewMap.put(name, realViewNumber);
+                //realViewNumber++;
             }
 
             @Override
             public void onDeviceDisconnected(String name) {
                 if (viewMap.containsKey(name)) {
-                    imageViews.removeViewAt(viewMap.get(name));
+                    int index = viewMap.get(name);
+                    imageViews.removeViewAt(index);
                 }
             }
 
@@ -347,12 +399,19 @@ public class ReceiveCameraActivity extends BaseActivity {
         nettyUtils.setOnDataReceivedListener(new NettyUtils.OnNettyDataReceivedListener() {
             @Override
             public void onDataReceived(String name, byte[] data, String message) {
-
                 if (!viewMap.containsKey(name)) return;
                 int idx = viewMap.get(name);
-                ImageView imageView = (ImageView) imageViews.getChildAt(idx);
-
-                if (imageView == null) return;
+                int myDeviceIdx = myDevice.size() - 1 - idx;
+                RelativeLayout relativeLayout = (RelativeLayout) imageViews.getChildAt(idx);
+                if (relativeLayout == null) {
+                    Log.d(TAG, "onDataReceived: imgIsNULL");
+                    return;
+                }
+                ImageView imageView = relativeLayout.findViewById(R.id.image);
+                if (imageView == null) {
+                    Log.d(TAG, "onDataReceived: imgIsNULL");
+                    return;
+                }
                 if (message.equals("text") && data.length != 0) {
                     String text = new String(data);
                     Toast.makeText(ReceiveCameraActivity.this, text, Toast.LENGTH_SHORT).show();
@@ -363,6 +422,7 @@ public class ReceiveCameraActivity extends BaseActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    myDevice.get(myDeviceIdx).setVideo(imageView);
                     photoView.setImageBitmap(bitmap);
                     //imageView.setImageBitmap(bitmap);
                 } else if (message.equals("video") && data.length != 0) {
@@ -371,12 +431,78 @@ public class ReceiveCameraActivity extends BaseActivity {
                     matrix.postScale(2.0F, 2.0F);
                     //matrix.setRotate(90, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
                     Bitmap newBitmap = bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-
 //                    newBitmap.setWidth(400);
 //                    newBitmap.setHeight(300);
-                    imageView.setLayoutParams(new LinearLayout.LayoutParams(800, 600));
+                    imageView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                     imageView.setImageBitmap(newBitmap);
+                    Log.d(TAG, "onDataReceived: idx: "+idx);
+                    myDevice.get(idx).setDeviceName(GroupChatServerHandler.address2Name.get(name));
+                    myDevice.get(idx).setVideo(imageView);
+                    myDevice.get(idx).setStatus(2);
+                    mAdapter = new MyAdapter<receiveCameraShow>(myDevice, R.layout.receive_camera_item) {
+                        @Override
+                        public void bindView(ViewHolder holder, receiveCameraShow obj) {
+                            holder.setDeviceName(R.id.device_name, obj.getDeviceName());
+                            holder.setImageResource(R.id.image, obj.getVideo());
+                            viewMap.put(name,holder.getItemPosition());
+                            holder.setStatusText(R.id.status_text, obj.getStatus());
+                            holder.setOnClickListener(R.id.image, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    // 获取到地址到设备名的映射
+                                    Map<String, String> address2Name = GroupChatServerHandler.address2Name;
+
+                                    for (String str : viewMap.keySet()) {
+                                        //
+                                        if (viewMap.get(str) == holder.getItemPosition()) {
+                                            selectedName = str;
+                                        Log.d(TAG, "onClick: str: "+str);
+                                            // 找到设备名
+                                            break;
+                                        }
+                                    }
+                                    Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + obj.getDeviceName(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    };
+                    imageViews.setAdapter(mAdapter);
+                } else if (message.equals("address") && data.length != 0) {
+                    String deviceName = new String(data);
+                    Log.d(TAG, "onDataReceived: deviceName: " + deviceName);
+                    myDevice.get(idx).setDeviceName(deviceName);
+                    myDevice.get(idx).setStatus(1);
+                    //viewMap.put(name, imageViews.getChildCount() - 1);
+                    mAdapter = new MyAdapter<receiveCameraShow>(myDevice, R.layout.receive_camera_item) {
+                        @Override
+                        public void bindView(ViewHolder holder, receiveCameraShow obj) {
+                            holder.setDeviceName(R.id.device_name, obj.getDeviceName());
+                            holder.setStatusText(R.id.status_text, obj.getStatus());
+                            viewMap.put(name,holder.getItemPosition());
+                            holder.setImageResource(R.id.image, obj.getVideo());
+                            holder.setOnClickListener(R.id.image, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    // 获取到地址到设备名的映射
+                                    Map<String, String> address2Name = GroupChatServerHandler.address2Name;
+
+                                    for (String str : viewMap.keySet()) {
+
+                                        if (viewMap.get(str) == holder.getItemPosition()) {
+                                            selectedName = str;
+                                            // 找到设备名
+                                            break;
+                                        }
+                                    }
+                                    Toast.makeText(ReceiveCameraActivity.this, "当前选中用户为" + obj.getDeviceName(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    };
+                    imageViews.setAdapter(mAdapter);
                 }
+
             }
         });
     }

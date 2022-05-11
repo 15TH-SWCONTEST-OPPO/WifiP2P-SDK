@@ -34,8 +34,8 @@ public class NettyUtils {
         nettyClient = new NettyClient(clientHandler);
     }
 
-    public void connect2Server(String host) throws InterruptedException {
-        nettyClient.run(host, Constant.NETTYPORT);
+    public void connect2Server(String host,String deviceName) throws InterruptedException {
+        nettyClient.run(host, Constant.NETTYPORT,deviceName);
     }
 
     public void startService(Handler nettyHandler) {
@@ -126,6 +126,8 @@ public class NettyUtils {
                         str = "photo";
                     } else if (arg1 == 2) {
                         str = "video";
+                    }else if(arg1 ==3){
+                        str = "address";
                     }
                     // 将数据放到一个Byte数组中
                     byte[] readBuf = (byte[]) msg.obj;
@@ -166,6 +168,8 @@ public class NettyUtils {
                         str = "photo";
                     } else if (arg1 == 2) {
                         str = "video";
+                    }else if(arg1==3){
+                        str = "address";
                     }
                     // 将数据放到一个Byte数组中
                     byte[] readBuf = (byte[]) msg.obj;

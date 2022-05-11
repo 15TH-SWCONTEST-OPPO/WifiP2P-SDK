@@ -13,6 +13,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
+
 import com.myapp.utils.NettyState;
 
 import java.util.HashMap;
@@ -25,6 +26,10 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
 
     //使用一个hashmap 管理
     public static Map<String, Channel> channels = new HashMap<String, Channel>();
+
+    //使用一个hashmap 管理
+    public static Map<String, String> address2Name = new HashMap<String, String>();
+
     //定义一个channle 组，管理所有的channel
     //GlobalEventExecutor.INSTANCE) 是全局的事件执行器，是一个单例
     public static ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
@@ -68,7 +73,7 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
         Message msg = new Message();
         msg.what = NettyState.DEVICE_CONNECTED;
         Bundle bundle = new Bundle();
-        bundle.putString("name",ctx.channel().remoteAddress().toString());
+        bundle.putString("name", ctx.channel().remoteAddress().toString());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
         System.out.println(ctx.channel().remoteAddress() + " 上线了~");
@@ -82,7 +87,7 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
         Message msg = new Message();
         msg.what = NettyState.DEVICE_DISCONNECTED;
         Bundle bundle = new Bundle();
-        bundle.putString("name",ctx.channel().remoteAddress().toString());
+        bundle.putString("name", ctx.channel().remoteAddress().toString());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
         System.out.println(ctx.channel().remoteAddress() + " 离线了~");
@@ -99,16 +104,16 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
     protected void messageReceived(ChannelHandlerContext ctx, byte[] msg) throws Exception {
         // 获取到当前channel
         Channel channel = ctx.channel();
-        Log.d(TAG,"收到消息");
+        Log.d(TAG, "收到消息");
         // 解码当前的Byte数组，然后通过handler更新ui
-        decode(channel.remoteAddress().toString(),msg);
+        decode(channel.remoteAddress().toString(), msg);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         //super.channelRead(ctx, msg);
         Channel channel = ctx.channel();
-        Log.d(TAG,"收到消息");
+        Log.d(TAG, "收到消息");
         // 解码当前的Byte数组，然后通过handler更新ui
         decode(channel.remoteAddress().toString(), (byte[]) msg);
     }
@@ -126,7 +131,7 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
                 break;
             }
         }
-        try{
+        try {
             if (valid) {
                 byte[] bufLength = new byte[4];
                 for (int i = 0; i < 4; i++) {
@@ -136,6 +141,7 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
                 int textCount = 0;
                 int photoCount = 0;
                 int videoCount = 0;
+                int addressCount = 0;
 
                 for (int i = 0; i < 4; i++) {
                     int read = msg[10 + i];
@@ -145,6 +151,8 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
                         photoCount++;
                     } else if (read == 2) {
                         videoCount++;
+                    } else if (read == 3) {
+                        addressCount++;
                     }
                 }
                 int length = ByteArrayToInt(bufLength);
@@ -157,7 +165,7 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
                 message.obj = buffer;
                 //传输姓名参数，来确定更新哪一个ui
                 Bundle bundle = new Bundle();
-                bundle.putString("name",name);
+                bundle.putString("name", name);
                 message.setData(bundle);
                 //设置arg1，来确定到底是哪一种数据
                 if (textCount == 4) {
@@ -172,9 +180,16 @@ public class GroupChatServerHandler extends SimpleChannelInboundHandler<byte[]> 
                     message.arg1 = 2;
                     Log.d(TAG, "video");
                     mHandler.sendMessage(message);
+                } else if (addressCount == 4) {
+                    // 向地址到名字的映射中新增一段
+                    address2Name.put(name, new String(buffer));
+                    message.arg1 = 3;
+                    Log.d(TAG,"address");
+                    mHandler.sendMessage(message);
+                    Log.i("FUCKADDRESS",new String(buffer));
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
     }

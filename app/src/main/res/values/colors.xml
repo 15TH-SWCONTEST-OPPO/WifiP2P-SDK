@@ -14,4 +14,11 @@
     <color name="laser_color">#0F0</color>
     <color name="corner_color">#00FF00</color>
     <!-- QRCode scanner color end -->
+
+    <!-- camera status color begin -->
+    <color name="status_yes">#008000</color>
+    <color name="status_wait">#ffff00</color>
+    <color name="status_stop">#ff0000</color>
+
+    <!-- camera status color end -->
 </resources>

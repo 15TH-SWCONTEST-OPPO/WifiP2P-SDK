@@ -469,7 +469,11 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         }
         try {
             if (mWifiP2pInfo != null) {
-                nettyUtils.connect2Server(mWifiP2pInfo.groupOwnerAddress.getHostAddress());
+                String deviceName = "";
+                if (mWifiP2pDevice != null) {
+                    deviceName = mWifiP2pDevice.deviceName;
+                }
+                nettyUtils.connect2Server(mWifiP2pInfo.groupOwnerAddress.getHostAddress(), deviceName);
                 isNettyConnected = true;
             } else {
                 isNettyConnected = false;
@@ -635,7 +639,6 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
         if (wifiP2pDevice != null) {
             config.deviceAddress = wifiP2pDevice.deviceAddress;
             config.wps.setup = WpsInfo.PBC;
-
             mWifiP2pManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
                 @Override
                 public void onSuccess() {
@@ -651,6 +654,7 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
                             connect(wifiP2pDevice);
                         }
                     } else {
+                        connectTime = 0;
                         isWifiConnected = true;
                         startNetty();
                         Toast.makeText(SendCameraActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
@@ -714,8 +718,8 @@ public class SendCameraActivity extends BaseActivity implements SurfaceHolder.Ca
                 public void onOpened(CameraDevice camera) {
                     Log.i(TAG, "onOpened");
                     try {
-                        CaptureRequest.Builder builder=camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
-                        builder.set(CaptureRequest.CONTROL_AE_MODE,1);
+                        CaptureRequest.Builder builder = camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+                        builder.set(CaptureRequest.CONTROL_AE_MODE, 1);
                         builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
                         Log.d(TAG, "onOpened: builder changed");
                     } catch (CameraAccessException e) {
