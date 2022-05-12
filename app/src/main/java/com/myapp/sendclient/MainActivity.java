@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.media.Image;
 import android.media.ImageReader;
@@ -24,6 +25,7 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private SurfaceHolder mSurfaceHolder;
     private int mWidth;
     private int mHeight;
-    private EditText mInput;
+//    private EditText mInput;
     private boolean isBluetoothConnnect;
     public Camera.Size size;
     private boolean mark = true;
@@ -77,13 +79,57 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_blue_send);
         // 创建蓝牙工具类
         mBt = new BluetoothUtil(this);
-        mInput = (EditText) findViewById(R.id.input);
-        imageView = (ImageView) findViewById(R.id.imageView);
+//        mInput = (EditText) findViewById(R.id.input);
+        imageView = (ImageView) findViewById(R.id.imageview);
         initBlue();
+        /*
+         * relative 布局
+         * */
+        RelativeLayout relativeLayout=(RelativeLayout)findViewById(R.id.relative);
+
+
+        /*
+         * icon图标
+         * */
+        // 加载字体文件
+        Typeface iconfont = Typeface.createFromAsset(getAssets(), "iconfont.ttf");
+        // client
+        TextView bluetooth = (TextView) findViewById(R.id.blue_blueTooth);
+        bluetooth.setTypeface(iconfont);
+        // sendPhoto
+        TextView sendPhoto = (TextView) findViewById(R.id.sendphoto);
+        sendPhoto.setTypeface(iconfont);
+        // video
+        TextView sendvideo = (TextView) findViewById(R.id.sendvideo);
+        sendvideo.setTypeface(iconfont);
+        // cancleLink
+        TextView cancleLink = (TextView) findViewById(R.id.cancleLink);
+        cancleLink.setTypeface(iconfont);
+        // closeScreen
+        TextView closescreen = (TextView) findViewById(R.id.closescreen);
+        closescreen.setTypeface(iconfont);
+
         HandlerThread handlerThread = new HandlerThread("Recorder");
         handlerThread.start();
         childHandler = new Handler(handlerThread.getLooper());
         setUpImageReader();
+    }
+
+    /*
+     * 隐藏navigateBar
+     * */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        View decorView = getWindow().getDecorView();
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
     }
 
     @SuppressLint("WrongConstant")
@@ -246,14 +292,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         // 从EditText中得到数据
-        String input = mInput.getText().toString().trim();
-        if (input != null && !input.isEmpty()) {
-            // 发送数据
-            mBt.send(input.getBytes(), "TEXT");
-        } else {
-            // 校验数据格式
-            Toast.makeText(MainActivity.this, "输入信息不能为空", Toast.LENGTH_SHORT).show();
-        }
+//        String input = mInput.getText().toString().trim();
+//        if (input != null && !input.isEmpty()) {
+//            // 发送数据
+//            mBt.send(input.getBytes(), "TEXT");
+//        } else {
+//            // 校验数据格式
+//            Toast.makeText(MainActivity.this, "输入信息不能为空", Toast.LENGTH_SHORT).show();
+//        }
     }
 
     //发送图片

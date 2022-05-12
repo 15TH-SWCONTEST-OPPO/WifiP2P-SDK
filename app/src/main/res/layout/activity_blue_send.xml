@@ -1,160 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <!--
+        背景
+    -->
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" />
+
+
+    <!--
+        按钮
+    -->
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
         android:orientation="vertical"
-        tools:context="com.rejointech.sendclient.MainActivity">
+        android:padding="20dp"
+        app:alignItems="center"
+        app:flexDirection="row"
+        app:flexWrap="wrap"
+        app:justifyContent="space_between"
+        tools:context="com.myapp.activity.MainActivity"
+        tools:ignore="MissingClass">
 
-<!--        <SurfaceView-->
-<!--            android:id="@+id/surfaceView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="300dp"/>-->
-
+        <!--
+            图像展示
+        -->
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/imageview"
             android:layout_width="match_parent"
             android:layout_height="300dp"/>
 
-        <EditText
-            android:layout_marginTop="20dp"
-            android:id="@+id/input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="请输入要发送的文本信息"/>
-
+        <!--
+            蓝牙
+        -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="horizontal">
+            android:layout_margin="5dp"
+            android:background="#80000000"
+            android:onClick="bluetooth">
 
-            <Button
-                android:layout_width="0dp"
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="bluetooth"
-                android:text="蓝牙"
-                android:textColor="#000"
-                android:textSize="18sp"/>
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="row">
 
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="文本"
-                android:onClick="sendText"
-                android:textColor="#000"
-                android:textSize="18sp"/>
+                <TextView
+                    android:id="@+id/blue_blueTooth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bluetooth"
+                    android:textColor="#ffffff"
+                    android:textSize="100px" />
 
-            <Button
-                android:onClick="sendPhoto"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="图片"
-                android:textColor="#000"
-                android:textSize="18sp"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="蓝牙"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
 
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="视频"
-                android:onClick="sendVideo"
-                android:textColor="#000"
-                android:textSize="18sp"/>
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+        <!--
+            图片
+        -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="#80000000"
+            android:onClick="sendPhoto">
 
-            <Button
-                android:onClick="disconnect"
-                android:layout_width="0dp"
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="断开连接"
-                android:textColor="#000"
-                android:textSize="18sp"/>
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="row">
 
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="关闭录屏"
-                android:onClick="closeScreen"
-                android:textColor="#000"
-                android:textSize="18sp"/>
+                <TextView
+                    android:id="@+id/sendphoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pic"
+                    android:textColor="#ffffff"
+                    android:textSize="100px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="图片"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
         </LinearLayout>
 
-    </LinearLayout>
-</ScrollView>
+        <!--
+            视频
+        -->
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="#80000000"
+            android:onClick="sendVideo">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="row">
+
+                <TextView
+                    android:id="@+id/sendvideo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/video"
+                    android:textColor="#ffffff"
+                    android:textSize="100px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="视频"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+
+        <!--
+            断开连接
+        -->
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="#80000000"
+            android:onClick="disconnect">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="row">
+
+                <TextView
+                    android:id="@+id/cancleLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cancelLink"
+                    android:textColor="#ffffff"
+                    android:textSize="100px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="断开连接"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="#80000000"
+            android:onClick="closeScreen">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:paddingHorizontal="45px"
+                android:paddingVertical="20px"
+                app:alignItems="center"
+                app:flexDirection="row">
+
+                <TextView
+                    android:id="@+id/closescreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/exit"
+                    android:textColor="#ffffff"
+                    android:textSize="100px" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="关闭录屏"
+                    android:textColor="#ffffff"
+                    android:textSize="22dp"></Button>
+
+            </com.google.android.flexbox.FlexboxLayout>
+        </LinearLayout>
+
+    </com.google.android.flexbox.FlexboxLayout>
 
 
-<!--<LinearLayout-->
-<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:tools="http://schemas.android.com/tools"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    android:orientation="vertical"-->
-<!--    tools:context="com.rejointech.sendclient.MainActivity">-->
-
-<!--    <SurfaceView-->
-<!--        android:id="@+id/surfaceView"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="300dp"/>-->
-
-<!--    <EditText-->
-<!--        android:layout_marginTop="20dp"-->
-<!--        android:id="@+id/input"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:hint="请输入要发送的文本信息"/>-->
-
-<!--    <LinearLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="bottom"-->
-<!--        android:orientation="horizontal">-->
-
-<!--        <Button-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:onClick="bluetooth"-->
-<!--            android:text="蓝牙"-->
-<!--            android:textColor="#000"-->
-<!--            android:textSize="18sp"/>-->
-
-<!--        <Button-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:text="文本"-->
-<!--            android:onClick="sendText"-->
-<!--            android:textColor="#000"-->
-<!--            android:textSize="18sp"/>-->
-
-<!--        <Button-->
-<!--            android:onClick="sendPhoto"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:text="图片"-->
-<!--            android:textColor="#000"-->
-<!--            android:textSize="18sp"/>-->
-
-<!--        <Button-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:text="视频"-->
-<!--            android:onClick="sendVideo"-->
-<!--            android:textColor="#000"-->
-<!--            android:textSize="18sp"/>-->
-<!--    </LinearLayout>-->
-
-<!--</LinearLayout>-->
+</RelativeLayout>

@@ -5,9 +5,12 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
         mBt = new BluetoothUtil(this);
         initBlue();
         initView();
+
+
     }
 
     private void initView() {
